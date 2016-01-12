@@ -1,5 +1,3 @@
-public class AllThoseTerritories {
-    public static void main(String[] args) {
-        System.out.println("Hello World!!");
-    }
+public class AllThoseTerritories  {
+    //main Java file
 }
