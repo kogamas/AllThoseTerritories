@@ -7,6 +7,7 @@ import java.util.List;
 public class Continent {
     private String name;
     private int bonus;
+    private int id;
     private List<Territory> territories = new LinkedList<>();
 
 
@@ -21,6 +22,10 @@ public class Continent {
      */
     public void addTerritory(Territory t) {
         this.territories.add(t);
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     /**
