@@ -17,4 +17,10 @@ public class Patch {
     void addPoint(Point p) {
         this.borders.add(p);
     }
+
+    public Point[] getPointArray() {
+        Point[] ret = new Point[this.borders.size()];
+        ret = this.borders.toArray(ret);
+        return ret;
+    }
 }
