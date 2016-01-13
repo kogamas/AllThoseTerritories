@@ -1,26 +1,25 @@
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.awt.Point;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Patch {
-    private ArrayList<Point> borders = new ArrayList<>();
+    private List<Point> borders = new LinkedList<>();
 
-    public Patch(Point[] points) {
-        for (Point p: points) {
-            borders.add(p);
-            List<Point> newList = Arrays.asList(points);
-            this.borders.addAll(newList);
-        }
-    }
     public Patch() {}
 
-    void addPoint(Point p) {
+    /**
+     * This method adds a Point to the patch of land
+     * @param p This is the Point added (java.awt.Point)
+     */
+    public void addPoint(Point p) {
         this.borders.add(p);
     }
 
-    public Point[] getPointArray() {
-        Point[] ret = new Point[this.borders.size()];
-        ret = this.borders.toArray(ret);
-        return ret;
+    /**
+     *
+     * @return the borders of a Patch as an Array of Points (java.awt.Point)
+     */
+    public Point[] getBorders() {
+        return borders.toArray(new Point[borders.size()]);
     }
 }
