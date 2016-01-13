@@ -1,3 +1,5 @@
+package game;
+
 public interface Game {
     /**
      * methods for drawing the map
