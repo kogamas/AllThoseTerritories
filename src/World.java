@@ -12,20 +12,21 @@ public class World {
     public World() {
     }
 
-    public World(String name) {
-        this.name = name;
-    }
-
-    public void addName(String name) {
+    /**
+     * This method sets a name for World object
+     * @param name should be the filename of the .map without .map
+     */
+    public void setName(String name) {
         if (this.name.equals("")) {
             this.name = name;
         }
         else System.err.println("Error: World already has a name!");
     }
 
-/*  if ids have not been set it sets ids for all continents,territories and patches
- *  Id: 100 hunderterstelle identifies the continent
- *  Id: 99 letzten 2 stellen identifies the territory
+/**
+ * This method sets Ids for all territories if ids have not yet been set
+ * hunderterstelle identifies the continent
+ * letzten 2 stellen identifies the territory
  */
     public void setAllIds() {   //territory max for 1 continent is 100
         if (!this.areAllIdsSet) {
