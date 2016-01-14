@@ -11,6 +11,7 @@ public class Territory {
     private int id;
     private List<Patch> patches = new LinkedList<>();
     private List<Territory> neighbors = new LinkedList<>();
+    private int army = 0;
     private int controlledByPlayer = -1;
 
     public Territory(String name) {
@@ -52,6 +53,30 @@ public class Territory {
             List<Territory> newList = Arrays.asList(terArray);
             this.neighbors.addAll(newList);
         }
+    }
+
+    /**
+     * This method adds Armies to the Territory
+     * @param count This is the number of armies added to the territory
+     */
+    public void addArmy(int count) {
+        this.army += count;
+    }
+
+    /**
+     * This method subtracts Armies from the Territory
+     * @param count This is the number of armies subtracted from the territory
+     */
+    public void subArmy(int count) {
+        this.army -= count;
+    }
+
+    /**
+     * This method returns size of the Army
+     * @return This returns the size of the Army
+     */
+    public int getArmy() {
+        return army;
     }
 
     /**
