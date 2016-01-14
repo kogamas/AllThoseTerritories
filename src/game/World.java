@@ -49,7 +49,7 @@ public class World {
     /**
      * @return returns a Map with the TerritoryId as Key and an Array of Patches as Value
      **/
-    public Map<Integer,Patch[]> getTerritoryMap() {
+    public Map<Integer,Patch[]> getTerritoryPatchesMap() {
         Map<Integer,Patch[]> territoryMap = new HashMap<>();
 
         for (int i = 0; i < continents.size(); i++) {
@@ -57,6 +57,21 @@ public class World {
                 int tempId = continents.get(i).getTerritories().get(j).getId();
                 Patch[] tempArr = continents.get(i).getTerritories().get(j).getPatches();
                 territoryMap.put(tempId, tempArr);
+            }
+        }
+        return territoryMap;
+    }
+    /**
+     * @return returns a Map with the TerritoryId as Key and the Territory as a Value
+     **/
+    public Map<Integer,Territory> getTerritoryMap() {
+        Map<Integer,Territory> territoryMap = new HashMap<>();
+
+        for (int i = 0; i < continents.size(); i++) {
+            for (int j = 0; j < continents.get(i).getTerritories().size(); j++) {
+                int tempId = continents.get(i).getTerritories().get(j).getId();
+                Territory tempTerritory = continents.get(i).getTerritories().get(j);
+                territoryMap.put(tempId, tempTerritory);
             }
         }
         return territoryMap;
