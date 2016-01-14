@@ -188,7 +188,9 @@ public class Reader {
 
     }
 
-
+    public World getWorld() {
+        return worldMap;
+    }
 
     public static void main(String[] args) {
 
