@@ -1,55 +1,39 @@
 package readmapfiles;
 
-import java.awt.*;
+import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
-/**
- * Created by Felix on 08.01.2016.
- */
+import game.*;
+
+
 public class Reader {
-    private Map<String, Queue<Point>> territoryPatches = null;
-    private Map<String, Point> territoryCapital = null;
-    private Map<String, Queue<String>> territoryNeighbors = null;
-    private Map<String, Queue<String>> territoryContinent = null;
-    private Map<String, Integer> continentBoni = null;
+    private Map<String, Territory> territoryMap = new HashMap<>();
+    private World worldMap = new World();
 
-    public Map<String, Queue<Point>> getTerritoryPatches() {
-        return territoryPatches;
-    }
 
-    public Map<String, Point> getTerritoryCapital() {
-        return territoryCapital;
-    }
+    public Reader(String[] args) {
+        File file = new File("angabe",args[0]);     // Path of .map directory is hardcoded
+        this.worldMap.setName(args[0].substring(0,args[0].length()-4));  //adds name of .map file as World name (for display in window)
 
-    public Map<String, Queue<String>> getTerritoryNeighbors() {
-        return territoryNeighbors;
-    }
-
-    public Map<String, Queue<String>> getTerritoryContinent() {
-        return territoryContinent;
-    }
-
-    public Map<String, Integer> getContinentBoni() {
-        return continentBoni;
+        createWorld(file);
+        worldMap.setAllIds();
     }
 
     public Reader(File file) {
+        createWorld(file);
+        worldMap.setAllIds();
+    }
 
-        //File file = new File("C:\\Users\\Felix\\Desktop\\Uni\\PK\\Abschlussaufgabe\\mapDateien\\africa.map");
-        Map<String, Queue<Point>> territoryPatches = new HashMap<>();
-        Map<String, Point> territoryCapital = new HashMap<>();
-        Map<String, Queue<String>> territoryNeighbors = new HashMap<>();
-        Map<String, Queue<String>> territoryContinent = new HashMap<>();
-        Map<String, Integer> continentBoni = new HashMap<>();
-
-
+    /**
+     * This method reads in a File and makes a World object according to the specifications given in the file
+     * @param file This is the .map file with the specifications on how to create the World object
+     *///todo: maybe simplify this long method and devide it into multibles
+    public void createWorld(File file) {
         try {
             BufferedReader bR = new BufferedReader(new FileReader(file));
             String line;
@@ -57,57 +41,60 @@ public class Reader {
 
 
             while ((line = bR.readLine()) != null) {
-                System.out.println(line);
+                // System.out.println(line); //for testing
 
 
-                Queue<Point> coordinates = new LinkedList<>();
-                Queue<String> neighbors = new LinkedList<>();
                 parts = line.split(" ");
                 int i = 0;
                 String territoryName = "";
-                Point onePoint;
+                Point tempPoint;
+                Patch tempPatch = new Patch();
+
 
 
                 if (parts[i].equals("patch-of")) {
-
                     i++;
 
-
-                    while (Character.isLetter(parts[i].charAt(0))) {
+                    while (Character.isLetter(parts[i].charAt(0))) {    //getting the whole territory name
                         territoryName += parts[i];
                         i++;
-
                     }
 
                     while (i < parts.length) {
-
-                        onePoint = new Point(Integer.parseInt(parts[i]), Integer.parseInt(parts[i + 1]));
-
-
-                        coordinates.add(onePoint);
+                        tempPatch.addPoint(new Point(Integer.parseInt(parts[i]), Integer.parseInt(parts[i + 1])));
                         i += 2;
                     }
-                    territoryPatches.put(territoryName, coordinates);
+
+                    if (territoryMap.containsKey(territoryName)) {  //check if there is already a patch for this territory
+                        territoryMap.get(territoryName).addPatch(tempPatch);
+                    }
+                    else {
+                        //System.out.println(":::::" + territoryName);      //for testing
+                        territoryMap.put(territoryName, new Territory(territoryName));    // if no earlier patch has initialised the territory, do so now
+                        territoryMap.get(territoryName).addPatch(tempPatch);
+                    }
+
                 } else if (parts[i].equals("capital-of")) {
                     i++;
 
-                    while (Character.isLetter(parts[i].charAt(0))) {
+                    while (Character.isLetter(parts[i].charAt(0))) {    //getting the whole territory name
                         territoryName += parts[i];
                         i++;
 
                     }
 
-                    onePoint = new Point(Integer.parseInt(parts[i]), Integer.parseInt(parts[i + 1]));
+                    tempPoint = new Point(Integer.parseInt(parts[i]), Integer.parseInt(parts[i + 1]));
+                    territoryMap.get(territoryName).addCapital(tempPoint);  //setting the Capital of the territory
 
-                    territoryCapital.put(territoryName, onePoint);
                 } else if (parts[i].equals("neighbors-of")) {
                     i++;
-                    String oneTerritory = "";
+                    String tempTerritoryString = "";
+                    Territory tempTerritory;
 
 
                     while (!parts[i].equals(":")) {
                         territoryName += parts[i];
-                        System.out.println(territoryName);
+                        //    System.out.println(i + ": " +territoryName);    //for testing
                         i++;
 
                     }
@@ -118,37 +105,51 @@ public class Reader {
                         if (!parts[i].equals("-")) {
 
                             if (i == parts.length - 1) {
-                                oneTerritory += parts[i];
-                                neighbors.add(oneTerritory);
-                                System.out.println(oneTerritory);
+                                tempTerritoryString += parts[i];
+                                tempTerritory = territoryMap.get(tempTerritoryString);
 
+                                //add neighbor to territory
+                                territoryMap.get(territoryName).addNeighbor(tempTerritory);
+
+                                //add base territory as a neighbor to neighbor
+                                tempTerritory.addNeighbor(territoryMap.get(territoryName));
+
+                                //System.out.println(i + ": " + tempTerritoryString);   //for testing
 
                             }
-
-                            oneTerritory += parts[i];
+                            tempTerritoryString += parts[i];
 
                         } else {
-                            neighbors.add(oneTerritory);
-                            System.out.println(oneTerritory);
-                            oneTerritory = "";
+                            tempTerritory = territoryMap.get(tempTerritoryString);
+
+                            //add neighbor to territory
+                            territoryMap.get(territoryName).addNeighbor(tempTerritory);
+
+                            //add base territory as a neighbor to neighbor
+                            tempTerritory.addNeighbor(territoryMap.get(territoryName));
+
+                            //System.out.println(i + ": " +tempTerritoryString);  //for testing
+                            tempTerritoryString = "";   //reset the string
 
                         }
 
 
                     }
-                    territoryNeighbors.put(territoryName, neighbors);
+                    //territoryNeighbors.put(territoryName, neighbors);     // i think unnecessery in new implementation
                 } else if (parts[i].equals("continent")) {
                     i++;
-                    String oneTerritory = "";
-
+                    String tempTerritory = "";
+                    String continentName = "";
+                    Continent tempContinent;
                     while (Character.isLetter(parts[i].charAt(0))) {
-                        territoryName += parts[i];
-                        System.out.println(territoryName);
+                        continentName += parts[i];
+                        //  System.out.println(i + ": " + continentName);    //for testing
                         i++;
 
                     }
+                    int continentBonus = Integer.parseInt(parts[i]);
+                    tempContinent = new Continent(continentName,continentBonus);
 
-                    continentBoni.put(territoryName, Integer.parseInt(parts[i]));
                     i++;
 
 
@@ -158,35 +159,27 @@ public class Reader {
                         if (!parts[i].equals("-")) {
 
                             if (i == parts.length - 1) {
-                                oneTerritory += parts[i];
-                                neighbors.add(oneTerritory);
-                                System.out.println(oneTerritory);
-
-
+                                tempTerritory += parts[i];
+                                tempContinent.addTerritory(territoryMap.get(tempTerritory));
+                                //System.out.println(i + ": " +tempTerritory);      //for testing
                             }
 
-                            oneTerritory += parts[i];
+                            tempTerritory += parts[i];
 
                         } else {
-                            neighbors.add(oneTerritory);
-                            System.out.println(oneTerritory);
-                            oneTerritory = "";
+                            tempContinent.addTerritory(territoryMap.get(tempTerritory));
+                            // System.out.println(i + ": " +tempTerritory);     //for testing
+                            tempTerritory = "";     //reset tempTerritory
 
                         }
 
 
                     }
-                    territoryContinent.put(territoryName, neighbors);
+                    worldMap.addContinent(tempContinent);
                 }
 
 
             }
-
-            this.territoryCapital = territoryCapital;
-            this.territoryNeighbors = territoryNeighbors;
-            this.territoryPatches = territoryPatches;
-            this.territoryContinent = territoryContinent;
-            this.continentBoni = continentBoni;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -195,22 +188,26 @@ public class Reader {
 
     }
 
+    public World getWorld() {
+        return worldMap;
+    }
 
     public static void main(String[] args) {
 
-        File file = new File("C:\\Users\\Felix\\Desktop\\Uni\\PK\\Abschlussaufgabe\\mapDateien\\world.map");
-        Reader world = new Reader(file);
+        Reader world = new Reader(args);
 
-        String str;
-        Queue<String> queue;
+        System.out.println("---------");
+
+
+        //Queue<String> queue;
         int in;
 
-        in = world.continentBoni.get("Australia");
-        System.out.println(in);
+       // in = world.continentBoni.get("Australia");
+      //  System.out.println(in);
+       // in = world.continentBoni.
 
-
-        queue = world.territoryNeighbors.get("Alaska");
-        System.out.print(queue);
+       // queue = world.territoryNeighbors.get("Alaska");
+       // System.out.print(queue);
 
 
     }
