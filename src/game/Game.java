@@ -1,5 +1,8 @@
 package game;
 
+import java.awt.*;
+import java.util.*;
+
 public interface Game {
 
     //Phase 0
@@ -9,6 +12,12 @@ public interface Game {
      * @return String[] This returns all players
      */
     String [] getPlayerNames(); //first array entry is first player, second is second
+
+    /**
+     * This method returns a Map with all the neighborsIds of a territoryId
+     * @return a Map with all the neighborsIds of a territoryId
+     */
+    public Map<Integer, int[]> getNeighborsList();
 
     /**
      * This method claims a territory for a player
@@ -60,6 +69,11 @@ public interface Game {
      * info the ui needs
      */
 
+    /**
+     * This method returns a Map with territoryIds and a List of Point arrays (the borders of the territory)
+     * @return a Map with territoryIds and a List of Point arrays (the borders of the territory)
+     */
+    Map<Integer, java.util.List<Point[]>> getTerritoryPointArrayMap();
     /**
      * @return This returns the Name of a continent or territory
      */

@@ -135,6 +135,16 @@ class Territory{
         }
         return check;
     }
+
+    int[] getNeighborsIds() {
+        int[] neighborsArr = new int[neighbors.size()];
+        int i = 0;
+        for (Territory t:neighbors) {
+            neighborsArr[i] = t.getId();
+            i++;
+        }
+        return neighborsArr;
+    }
         //just for testing
     /*int neighborCount() {
        return neighbors.size();

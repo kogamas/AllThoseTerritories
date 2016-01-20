@@ -2,7 +2,10 @@ package game;
 
 import Board.Board;
 import Board.Reader;
+
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class GameRun implements Game{
     private Board board;
@@ -236,5 +239,13 @@ public class GameRun implements Game{
         return playerMap.get(playerId).getName();
     }
 
+    @Override
+    public Map<Integer,List<Point[]>> getTerritoryPointArrayMap() {
+      return board.getTerritoryPointArrayMap();
+    }
 
+    @Override
+    public Map<Integer, int[]> getNeighborsList() {
+        return board.getNeighborsList();
+    }
 }

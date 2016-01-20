@@ -279,5 +279,17 @@ class World implements Board{
         }
         else return false;
     }
+
+    public Map<Integer, int[]> getNeighborsList() {
+        Map<Integer, int[]> neighborMap = new HashMap<>();
+        for (Continent c:continents) {
+            for (Territory t: c.getTerritories()) {
+                int[] temp = t.getNeighborsIds();
+                neighborMap.put(t.getId(), temp);
+            }
+        }
+        return neighborMap;
+    }
+
 }
 

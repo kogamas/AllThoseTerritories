@@ -20,5 +20,5 @@ public interface Board {
     String getName(int id);
     public int calculateReinforcement(int playerId);
     public boolean isNeighborOf(int territoryId, int neighborId);
-
+    public Map<Integer, int[]> getNeighborsList();
 }
