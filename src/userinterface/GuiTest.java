@@ -3,7 +3,10 @@ package userinterface; /**
  */
 
 
+import game.Patch;
+import game.World;
 import readmapfiles.Reader;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -13,40 +16,98 @@ import java.util.Queue;
 
 public class GuiTest extends JFrame {
 
-  public GuiTest(){
-      setTitle("DTestGui");
-        setSize(3000,1000);
-      setVisible(true);
-      setDefaultCloseOperation(EXIT_ON_CLOSE);
-  }
+    public GuiTest() {
+        setTitle("DTestGui");
+        setSize(1300, 800);
+        setVisible(true);
+
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+    }
 
     @Override
-    public void paint(Graphics g){
+    public void paint(Graphics g) {
 
-        File file = new File("C:\\Users\\Felix\\Desktop\\Uni\\PK\\Abschlussaufgabe\\mapDateien\\world.map");
-        Reader world = new Reader(file);
+        JFrame gameMap = new JFrame();
+
+        File file = new File("C:\\Users\\Felix\\Desktop\\Uni\\AllThoseTerritories\\angabe\\world.map");
+        Reader readWorld = new Reader(file);
         String first;
-        Point firstPoint=null;
-        Point previousPoint=null;
-        Point nextPoint=null;
-        Queue<Point> onePatch;
+        Point[] patchPoints;
+        Point previousPoint = null;
+        Point nextPoint = null;
+        Queue<Polygon> oneTerritory = null;
+        int[] x = null;
+        int[] y = null;
 
-        Map<String,Queue<Point>> patches = world.getTerritoryPatches();
 
-        for(Queue<Point> q : patches.values()){
-            firstPoint=q.poll();
-            previousPoint=firstPoint;
+        World newWorld = readWorld.getWorld();
 
-            while(!q.isEmpty()){
+        Map<Integer, Patch[]> patches = newWorld.getTerritoryPatchesMap();
 
-                nextPoint=q.poll();
+        for (Patch[] q : patches.values()) {
 
-                g.drawLine(previousPoint.x+100,previousPoint.y+100,nextPoint.x+100,nextPoint.y+100);
-                previousPoint=nextPoint;
+            for (int i = 0; i < q.length; i++) {
+
+
+                patchPoints = q[i].getBorders();
+
+
+                x = new int[patchPoints.length];
+                y = new int[patchPoints.length];
+
+
+                for (int j = 0; j < patchPoints.length; j++) {
+
+
+                    x[j] =  patchPoints[j].x;
+                    y[j] =  patchPoints[j].y;
+
+
+
+                    /*
+
+
+                    previousPoint = patchPoints[j-1];
+
+
+                    nextPoint = patchPoints[j];
+
+
+
+
+                   // g.drawLine(previousPoint.x, previousPoint.y, nextPoint.x, nextPoint.y);
+                    previousPoint = nextPoint;
+                    */
+                }
+                final Polygon polyPatch =new Polygon(x,y,x.length);
+                oneTerritory.add(polyPatch);
+
+
+
+
+
+
+                //  g.drawLine(patchPoints[0].x, patchPoints[0].y, nextPoint.x , nextPoint.y);
+
 
             }
 
-            g.drawLine(firstPoint.x+100,firstPoint.y+100,nextPoint.x+100,nextPoint.y+100);
+            gameMap= new JFrame(){
+
+                public void paint(Graphics g){
+                    super.paint(g);
+                    g.setColor(Color.CYAN);
+
+                    while(!oneTerritory.isEmpty()) {
+                        g.drawPolygon(oneTerritory.poll());
+                    }
+
+                }
+
+
+
+            };
+
 
         }
 
@@ -56,7 +117,14 @@ public class GuiTest extends JFrame {
     public static void main(String[] args) {
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
-      GuiTest g = new GuiTest();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new GuiTest();
+            }
+
+
+        });
     }
 
 }
