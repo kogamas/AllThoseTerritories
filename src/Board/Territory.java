@@ -1,11 +1,11 @@
-package game;
+package Board;
 
 import java.awt.Point;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Territory {
+class Territory{
     private String name;
     private Point capital;
     private int id;
@@ -14,52 +14,37 @@ public class Territory {
     private int army = 0;
     private int controlledByPlayer = -1;
 
-    public Territory(String name) {
+    Territory(String name) {
         this.name = name;
-    }
-
-    public Territory(String name, Point capital) {
-        this.name = name;
-        this.capital = capital;
     }
 
     /**
      * This method adds a Capital to the Territory
      * @param capital  This is the capital as a Point (java.awt.Point)
      */
-   public void addCapital(Point capital) {
+   void addCapital(Point capital) {
         this.capital = capital;
     }
     /**
      * This method adds a Patch of Land to the Territory
      * @param p  This is a Patch of Land
      */
-   public void addPatch(Patch p) {
+   void addPatch(Patch p) {
         this.patches.add(p);
     }
     /**
      * This method adds a Neighbor to this Territory
      * @param t  This is a Territory added as a Neighbor
      */
-   public void addNeighbor(Territory t) {
+   void addNeighbor(Territory t) {
         this.neighbors.add(t);
-    }
-    /**
-     * This method adds multible Neighbors to this Territory
-     * @param terArray  This is an array of Territories added as a Neighbors
-     */
-   public void addNeighbor(Territory[] terArray) {
-        for (Territory t : terArray) {
-            List<Territory> newList = Arrays.asList(terArray);
-            this.neighbors.addAll(newList);
-        }
     }
 
     /**
      * This method adds Armies to the Territory
      * @param count This is the number of armies added to the territory
      */
-    public void addArmy(int count) {
+    void addArmy(int count) {
         this.army += count;
     }
 
@@ -67,7 +52,7 @@ public class Territory {
      * This method subtracts Armies from the Territory
      * @param count This is the number of armies subtracted from the territory
      */
-    public void subArmy(int count) {
+    void subArmy(int count) {
         this.army -= count;
     }
 
@@ -75,7 +60,7 @@ public class Territory {
      * This method returns size of the Army
      * @return This returns the size of the Army
      */
-    public int getArmy() {
+    int getArmy() {
         return army;
     }
 
@@ -83,15 +68,27 @@ public class Territory {
      *
      * @return an array of Patches
      */
-    public Patch[] getPatches() {
+    Patch[] getPatches() {
         return patches.toArray(new Patch[patches.size()]);
     }
 
     /**
+     *
+     * @return a List full of Point arrays(the Patches)
+     */
+    List<Point[]> getPointArrayList() {
+        List<Point[]> tempList = new LinkedList<>();
+
+        for (Patch p: patches) {
+            tempList.add(p.getBorders());
+        }
+        return tempList;
+    }
+    /**
      * This method is used to check who is controlling this Territory
      * @return int This returns a int representation of the Player controlling this Territory
      */
-    public int getControlledByPlayer() {
+    int getControllingPlayerId() {
         return controlledByPlayer;
     }
 
@@ -99,7 +96,7 @@ public class Territory {
      *
      * @return int This returns the Id of this Territory
      */
-    public int getId() {
+    int getId() {
         return id;
     }
 
@@ -107,7 +104,7 @@ public class Territory {
      * This method sets the Id of this Territory
      * @param id This is the id which is set
      */
-    public void setId(int id){
+    void setId(int id){
         this.id = id;
     }
 
@@ -118,4 +115,35 @@ public class Territory {
     void setControlledByPlayer(int player) {
         this.controlledByPlayer = player;
     }
+
+    String getName() {
+        return name;
+    }
+
+    /**
+     * This method checks if this territory is a neighbor of that territory
+     * @param neighborId neighbor to check
+     * @return boolean is this neighbor of that
+     */
+    boolean isNeighborOf(int neighborId) {
+        boolean check = false;
+        for (Territory n:neighbors) {
+            if(n.getId() == neighborId) {
+                check = true;
+            }
+            System.out.println("Is "+this.getId()+" neighbor of "+ n.getId() + " "+ check);
+        }
+        return check;
+    }
+        //just for testing
+    /*int neighborCount() {
+       return neighbors.size();
+    }
+    String neighborName() {
+        String ret = "*";
+        for (Territory t:neighbors) {
+           ret += t.getName() + " ";
+        }
+        return this.name + ": "+ ret + "*";
+    }*/
 }
