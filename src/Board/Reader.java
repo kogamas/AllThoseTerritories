@@ -1,4 +1,4 @@
-package readmapfiles;
+package Board;
 
 import java.awt.Point;
 import java.io.BufferedReader;
@@ -7,8 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import game.*;
 
 
 public class Reader {
@@ -56,7 +54,7 @@ public class Reader {
                     i++;
 
                     while (Character.isLetter(parts[i].charAt(0))) {    //getting the whole territory name
-                        territoryName += parts[i];
+                        territoryName += " " + parts[i];
                         i++;
                     }
 
@@ -78,7 +76,7 @@ public class Reader {
                     i++;
 
                     while (Character.isLetter(parts[i].charAt(0))) {    //getting the whole territory name
-                        territoryName += parts[i];
+                        territoryName += " " + parts[i];
                         i++;
 
                     }
@@ -93,8 +91,8 @@ public class Reader {
 
 
                     while (!parts[i].equals(":")) {
-                        territoryName += parts[i];
-                        //    System.out.println(i + ": " +territoryName);    //for testing
+                        territoryName += " " + parts[i];
+                            System.out.println(i + ": " +territoryName);    //for testing
                         i++;
 
                     }
@@ -105,7 +103,7 @@ public class Reader {
                         if (!parts[i].equals("-")) {
 
                             if (i == parts.length - 1) {
-                                tempTerritoryString += parts[i];
+                                tempTerritoryString +=" " + parts[i];
                                 tempTerritory = territoryMap.get(tempTerritoryString);
 
                                 //add neighbor to territory
@@ -117,7 +115,7 @@ public class Reader {
                                 //System.out.println(i + ": " + tempTerritoryString);   //for testing
 
                             }
-                            tempTerritoryString += parts[i];
+                            tempTerritoryString += " " + parts[i];
 
                         } else {
                             tempTerritory = territoryMap.get(tempTerritoryString);
@@ -142,7 +140,7 @@ public class Reader {
                     String continentName = "";
                     Continent tempContinent;
                     while (Character.isLetter(parts[i].charAt(0))) {
-                        continentName += parts[i];
+                        continentName +=" " + parts[i];
                         //  System.out.println(i + ": " + continentName);    //for testing
                         i++;
 
@@ -159,12 +157,12 @@ public class Reader {
                         if (!parts[i].equals("-")) {
 
                             if (i == parts.length - 1) {
-                                tempTerritory += parts[i];
+                                tempTerritory += " " + parts[i];
                                 tempContinent.addTerritory(territoryMap.get(tempTerritory));
                                 //System.out.println(i + ": " +tempTerritory);      //for testing
                             }
 
-                            tempTerritory += parts[i];
+                            tempTerritory +=" " + parts[i];
 
                         } else {
                             tempContinent.addTerritory(territoryMap.get(tempTerritory));
@@ -193,24 +191,30 @@ public class Reader {
     }
 
     public static void main(String[] args) {
+        /*          //just for testing
 
+        System.out.println("-----creating World and setting ids----");
         Reader world = new Reader(args);
+        World board = world.getWorld();
 
+        System.out.println("-----start testing world----");
+
+        System.out.println("----print all territories-----");
+
+        for (Continent c:board.getContinents()) {
+            for (Territory t: c.getTerritories()) {
+                System.out.println("Id: " + t.getId() + " Name: " + t.getName() + " Army: " + t.getArmy() + " Player: " + t.getControllingPlayerId());
+            }
+        }
+        System.out.println("----Venezuela add army-----");
+        board.getArmy(2001);
+        board.addArmy(2001, 5);
+        System.out.println("----board.getArmy(2001);-----" + board.getArmy(2001));
+        System.out.println("board.countTerritories()" + board.countTerritories());
         System.out.println("---------");
-
-
-        //Queue<String> queue;
-        int in;
-
-       // in = world.continentBoni.get("Australia");
-      //  System.out.println(in);
-       // in = world.continentBoni.
-
-       // queue = world.territoryNeighbors.get("Alaska");
-       // System.out.print(queue);
-
-
+        System.out.println("---------");
+        System.out.println("---------");
+        System.out.println("---------");
+        */
     }
-
-
 }
