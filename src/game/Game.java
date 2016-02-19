@@ -17,7 +17,7 @@ public interface Game {
      * This method returns a Map with all the neighborsIds of a territoryId
      * @return a Map with all the neighborsIds of a territoryId
      */
-    public Map<Integer, int[]> getNeighborsList();
+    Map<Integer, int[]> getNeighborsList();
 
     /**
      * This method claims a territory for a player
@@ -30,7 +30,7 @@ public interface Game {
 
     //Phase 1
 
-  //boolean isGameOver();
+    boolean isGameOver();
 
 
     void nextRound();   //could check if GameOver
@@ -48,6 +48,8 @@ public interface Game {
      * @param numberOfArmies    How many armies are reinforced
      */
     void moveReinforcement(int playerId, int territoryId, int numberOfArmies);     //sets an army on a territory
+
+    boolean hasReinforcement(int playerId);
 
     /**
      * This method moves armies from a territory to another if they are controlled by the same player
@@ -100,11 +102,12 @@ public interface Game {
      */
     String getPlayerName(int playerId);
 
+    int countTerritories();
     //int[] getPlayerColor(int playerId);
 
 
     /*
-     * just for Testing
+     * todo: Delete this cause it's just for testing
      */
     void printTerritories();
 

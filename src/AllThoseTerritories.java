@@ -91,6 +91,70 @@ public class AllThoseTerritories  {
         game.claimTerritory(1,6003);
         game.claimTerritory(1,6004);
     }
+
+    public void GameLogic(String [] args) {
+        //initializing Game and generate Map from args
+        String player1 = "Foo";//todo: get Player names from gui and insert here
+        String player2 = "Bar";//todo: get Player names from gui and insert here
+        Game game = new GameRun(player1, player2, args);
+
+        //starting Phase 1: Landclaim
+        for (int i = 0; i < game.countTerritories(); i++) {
+            int territoryId = -1;   //todo: get from gui
+            int playerId = -1;      //todo: get from gui
+            if (i % 2 == 0) {
+                game.claimTerritory(playerId, territoryId);
+            }
+            else {
+                game.claimTerritory(playerId, territoryId);
+            }
+        }
+        //end of  landclaim Phase
+
+        //starting Phase 2: conquest
+        while (!game.isGameOver()) {
+
+            game.calculateReinforcement(1);
+            game.calculateReinforcement(2);
+
+            while (game.hasReinforcement(1)) {
+                int territoryId = -1;   //todo: get from gui
+                int numberOfArmies = -1; //todo: get from gui
+               game.moveReinforcement(1, territoryId, numberOfArmies);
+            }
+
+            while (game.hasReinforcement(2)) {
+                int territoryId = -1;   //todo: get from gui
+                int numberOfArmies = -1; //todo: get from gui
+                game.moveReinforcement(2, territoryId, numberOfArmies);
+            }
+
+
+            boolean player1BreakCondition = false;  //todo: get from gui (end turn button!!)
+            while (!player1BreakCondition) {
+                int fromTerritory = -1; //todo: get from gui
+                int toTerritory = -1;   //todo: get from gui
+
+                game.attack(fromTerritory, toTerritory);
+
+                if (game.isGameOver()) {
+                    System.out.println("Game over! Player 1 won!");   //todo: implement alert in Gui
+                }
+            }
+
+            boolean player2BreakCondition = false;  //todo: get from gui (end turn button!!)
+            while (!player2BreakCondition) {
+                int fromTerritory = -1; //todo: get from gui
+                int toTerritory = -1;   //todo: get from gui
+
+                game.attack(fromTerritory, toTerritory);
+
+                if (game.isGameOver()) {
+                    System.out.println("Game over! Player 2 won!");   //todo: implement alert in Gui
+                }
+            }
+        }
+    }
     //just for testing
     public static void main(String[] args) {
         System.out.println("---starting game---");
@@ -110,7 +174,7 @@ public class AllThoseTerritories  {
         System.out.println("game.getName(2000):"+game.getName(2000));
         System.out.println("game.getName(2001):"+game.getName(2001));
         System.out.println("game.getName(3002):"+game.getName(3002));
-        System.out.println("---calculating reinforcements---");    //todo: test this
+        System.out.println("---calculating reinforcements---");
         game.calculateReinforcement(1);
         game.calculateReinforcement(2);
         System.out.println("---reinforcing---");
@@ -122,7 +186,7 @@ public class AllThoseTerritories  {
        // game.moveReinforcement(2,6001,1);
         System.out.println("---printing reinforced territories---");
         game.printTerritories();
-        System.out.println("---attacking---");      //todo: test this
+        System.out.println("---attacking---");
         game.attack(6004,6003);
         game.attack(6004,6003);
         game.attack(6004,6003);
@@ -131,11 +195,13 @@ public class AllThoseTerritories  {
         //game.attack(5002,4001);
         System.out.println("---printing attacked territories---");
         game.printTerritories();
-        System.out.println("---moving---");         //todo: test this
+        System.out.println("---moving---");
         game.moveArmy(5003,5001,1);
         System.out.println("---printing moved army territories---");
         game.printTerritories();
 
        // game.printTerritories2();
+
+
     }
 }

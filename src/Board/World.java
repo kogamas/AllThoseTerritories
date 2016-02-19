@@ -118,7 +118,8 @@ class World implements Board{
      *
      * @return  int This returns the number of territories
      */
-    int countTerritories() {
+    @Override
+    public int countTerritories() {
         int countTerritories = 0;
         for (int i = 0; i < continents.size(); i++) {
             for (int j = 0; j < continents.get(i).getTerritories().size(); j++) {
@@ -149,6 +150,33 @@ class World implements Board{
         }
         return -1;
     }
+
+    /**
+     * This method checks if all territories are controlled by the same player
+     * @param
+     * @return
+     */
+    @Override
+    public boolean isGameOver() {
+        boolean controllingPlayerSet = false;
+        int controllingPlayer = -1;
+
+        for (Continent c : continents) {
+                for (Territory t : c.getTerritories()) {
+                    if (!controllingPlayerSet) {
+                        controllingPlayer = t.getControllingPlayerId();
+                        controllingPlayerSet = true;
+                    }
+
+                    if (t.getControllingPlayerId() != controllingPlayer ) {
+                        return false;
+                    }
+                }
+
+            }
+        return true;
+    }
+
 
     private Territory getTerritory(int territoryId) {
         int continentId = territoryId / 1000;
@@ -188,14 +216,6 @@ class World implements Board{
         }
         else System.err.println("Error 13: False territory Id");
     }
-
-    public void subArmy(int territoryId, int n) {
-        if (validTerritoryId(territoryId)) {
-            getTerritory(territoryId).subArmy(n);
-        }
-        else System.err.println("Error 14: False territory Id");
-    }
-
 
     public void printTerritories() {
         for (Continent c: continents) {

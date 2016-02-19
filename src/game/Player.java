@@ -13,6 +13,8 @@ public class Player {
         return name;
     }
 
+    public boolean hasReinforcement() { return reinforcement > 0;}
+
     public int getReinforcement() {
         return reinforcement;
     }

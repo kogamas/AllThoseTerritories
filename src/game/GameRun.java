@@ -104,7 +104,7 @@ public class GameRun implements Game{
             if (validTerritoryId(toTerritoryId) && validTerritoryId(fromTerritoryId)) {     //check if both territory ids are correct
                 if (fromTerritoryControlledByPlayer == toTerritoryControlledByPlayer) {     //check if both territories belong to the same player
                     if (board.getArmy(fromTerritoryId) >= numberOfArmies + 1) {                        //check if enough armies are in territory
-                        board.subArmy(fromTerritoryId, numberOfArmies);
+                        board.addArmy(fromTerritoryId, -numberOfArmies);    //subtract by adding negative
                         board.addArmy(toTerritoryId, numberOfArmies);
                     }
                     else System.err.println("Error 11: You dont have enough armies to move");
@@ -146,8 +146,8 @@ public class GameRun implements Game{
                 } else System.err.println("Error 06: You cannot attack your own terriory");
             } else System.err.println("Error 07: The territory Id is not valid");
 
-            board.subArmy(fromTerritoryId, losses[0]);    // subtract the losses from the attacking territory
-            board.subArmy(toTerritoryId, losses[1]);      // subtract the losses from the defending territory
+            board.addArmy(fromTerritoryId, -losses[0]);    // subtract the losses from the attacking territory
+            board.addArmy(toTerritoryId, -losses[1]);      // subtract the losses from the defending territory
 
         }
         else System.err.println("Error 08: The two entered Territories are not neighbors");
@@ -247,5 +247,20 @@ public class GameRun implements Game{
     @Override
     public Map<Integer, int[]> getNeighborsList() {
         return board.getNeighborsList();
+    }
+
+    @Override
+    public boolean isGameOver() {
+        return board.isGameOver();
+    }
+
+    @Override
+    public boolean hasReinforcement(int playerId) {
+        return getPlayer(playerId).hasReinforcement();
+    }
+
+    @Override
+    public int countTerritories() {
+        return board.countTerritories();
     }
 }
