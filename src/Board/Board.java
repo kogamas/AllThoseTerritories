@@ -12,13 +12,13 @@ public interface Board {
     void setControllingPlayer(int territoryId, int playerId);
     int getArmy(int territoryId);
     void addArmy(int territoryId, int n);
-    void subArmy(int territoryId, int n);
-    public Map<Integer,Territory> getTerritoryMap();
+    Map<Integer,Territory> getTerritoryMap();
     void printTerritories();
-
+    int countTerritories();
     boolean validTerritoryId(int territoryId);
     String getName(int id);
-    public int calculateReinforcement(int playerId);
-    public boolean isNeighborOf(int territoryId, int neighborId);
-    public Map<Integer, int[]> getNeighborsList();
+    int calculateReinforcement(int playerId);
+    boolean isNeighborOf(int territoryId, int neighborId);
+    Map<Integer, int[]> getNeighborsList();
+    boolean isGameOver();
 }

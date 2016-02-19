@@ -49,14 +49,6 @@ class Territory{
     }
 
     /**
-     * This method subtracts Armies from the Territory
-     * @param count This is the number of armies subtracted from the territory
-     */
-    void subArmy(int count) {
-        this.army -= count;
-    }
-
-    /**
      * This method returns size of the Army
      * @return This returns the size of the Army
      */
