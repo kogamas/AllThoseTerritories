@@ -3,7 +3,7 @@ package userinterface; /**
  */
 
 
-import readmapfiles.Reader;
+import Board.Reader;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
