@@ -65,7 +65,7 @@ public class GameRun implements Game{
         System.out.println("Reinforcement player" + playerId + ": " + board.calculateReinforcement(playerId));
     }
 
-    public void claimTerritory(int playerId, int territoryId) {
+    public boolean claimTerritory(int playerId, int territoryId) {
 
         int territoryControlledByPlayer = board.getControllingPlayerId(territoryId);
 
@@ -76,10 +76,17 @@ public class GameRun implements Game{
             }
         }
         else System.err.println("Error 01: invalid PlayerId or TerritoryId entered");
+
+        return true;    //todo: implement check if claim phase is over
     }
 
     @Override
-    public void moveReinforcement(int playerId, int territoryId, int numberOfArmies) {
+    public int showReinforcement(int playerId) {
+        return 999;   //todo: implement this
+    }
+
+    @Override
+    public boolean moveReinforcement(int playerId, int territoryId, int numberOfArmies) {
 
         int territoryControlledByPlayer = board.getControllingPlayerId(territoryId);
         int reinforcement = getPlayer(playerId).getReinforcement();
@@ -92,6 +99,8 @@ public class GameRun implements Game{
             else System.err.println("Error 02: Territory does not belong to you or no more reinforcements available");
         }
         else System.err.println("Error 03: invalid PlayerId or TerritoryId entered");
+
+        return true; //todo: implement reinfocement move end logic
     }
 
     @Override
