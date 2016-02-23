@@ -272,9 +272,16 @@ public class InterfaceGui {
                                             game.nextPhase();
 
                                         }
+                                        game.compClaimTerritory();
+                                        if (game.allClaimed()) {
+                                            gamePhase = 2;
+                                            game.nextPhase();
+
+                                        }
 
                                     } else if (gamePhase == 1) {
 
+                                        game.calculateReinforcement(1);
                                         game.moveReinforcement(1, q.getKey(), game.showReinforcement(1));
                                         game.nextPhase();
                                         gamePhase = 2;
