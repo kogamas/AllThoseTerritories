@@ -243,7 +243,10 @@ public class InterfaceGui {
                     aimedTerritory = -1;
 
                     gamePhase = 1;
-                    game.nextRound();
+
+                    game.calculateReinforcement(2);
+                    game.compMoveReinforcement();
+
                 } else {
                     for (Map.Entry<Integer, Queue<Polygon>> q : territoryPolygons.entrySet()) {
 
