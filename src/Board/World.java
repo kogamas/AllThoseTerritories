@@ -274,6 +274,23 @@ class World implements Board{
     }
 
     @Override
+    public Point getCapital(int territoryId) {
+        for (Continent c : continents) {
+            if (c.getId() == territoryId) {
+                return null;
+            }
+            else {
+                for (Territory t : c.getTerritories()) {
+                    if (t.getId() == territoryId) {
+                        return t.getCapital();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public int calculateReinforcement(int playerId) {
         int count = 0;
         int bonus = 0;
@@ -311,5 +328,18 @@ class World implements Board{
         return neighborMap;
     }
 
+    @Override
+    public boolean isAllClaimed() {
+
+        for (Continent c: continents) {
+            for (Territory t: c.getTerritories()) {
+              if (t.getControllingPlayerId() < 0) {     //playerId default is -1
+                return false;
+              }
+            }
+        }
+
+        return true;
+    }
 }
 

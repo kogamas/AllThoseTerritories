@@ -57,6 +57,14 @@ class Territory{
     }
 
     /**
+     * This method returns the Capital of a Territory
+     * @return
+     */
+    public Point getCapital() {
+        return capital;
+    }
+
+    /**
      *
      * @return an array of Patches
      */
