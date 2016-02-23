@@ -4,6 +4,7 @@ import board.Patch;
 import board.Territory;
 import board.World;
 import board.Reader;
+import game.Game;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -18,7 +19,7 @@ public class InterfaceGui {
     private JFrame mainMap;
     private Polygon poly;
     private Map<Integer, Queue<Polygon>> territoryPolygons;
-    private Map<Integer, Territory> territoryMap;
+    private Game game;
     private int gamePhase;
     private JPanel gamePanel;
     private Polygon endTurnPoly;
