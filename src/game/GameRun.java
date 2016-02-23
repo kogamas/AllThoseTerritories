@@ -75,7 +75,7 @@ public class GameRun implements Game{
      * @return  Boolean false when all all territories are claimed
      */
     @Override
-    public boolean claimTerritory(int playerId, int territoryId) {
+    public void claimTerritory(int playerId, int territoryId) {
 
         int territoryControlledByPlayer = board.getControllingPlayerId(territoryId);
 
@@ -86,8 +86,6 @@ public class GameRun implements Game{
             }
         }
         else System.err.println("Error 01: invalid PlayerId or TerritoryId entered");
-
-        return !board.isAllClaimed();    // checks if claim phase is over
     }
 
     @Override
@@ -318,4 +316,27 @@ public class GameRun implements Game{
     public Point getCapital(int territoryId) {
         return board.getCapital(territoryId);
     }
+
+    @Override
+    public int compClaimTerritory() {
+        int compTerrId = board.getRandomTerritoryId(2);
+        claimTerritory(2,compTerrId);
+        return compTerrId;
+    }
+
+    @Override
+    public int compMoveReinforcement() {
+        int compTerrId = board.getRandomTerritoryId(2);
+        int allCompArmy = getPlayer(2).getReinforcement();
+        board.addArmy(compTerrId, allCompArmy);
+        getPlayer(2).subReinforcement(allCompArmy);
+        return compTerrId;
+    }
+
+    @Override
+    public boolean allClaimed() {
+        return board.isAllClaimed();    // checks if claim phase is over
+    }
+
+
 }

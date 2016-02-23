@@ -23,4 +23,5 @@ public interface Board {
     boolean isGameOver();
     Point getCapital(int territoryId);
     boolean isAllClaimed();
+    public int getRandomTerritoryId(int playerId);
 }

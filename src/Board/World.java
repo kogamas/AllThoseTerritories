@@ -1,10 +1,7 @@
 package Board;
 
 import java.awt.Point;
-import java.util.List;
-import java.util.Map;
-import java.util.LinkedList;
-import java.util.HashMap;
+import java.util.*;
 
 class World implements Board{
 
@@ -340,6 +337,34 @@ class World implements Board{
         }
 
         return true;
+    }
+
+    public int getRandomTerritoryId(int playerId) {
+
+        int count = 0;
+        for (Continent c: continents) {
+            for (Territory t: c.getTerritories()) {
+                if (t.getControllingPlayerId() == playerId) {     //playerId default is -1
+                    count++;
+                }
+            }
+        }
+        Random rand = new Random();
+        int value = rand.nextInt(count);
+        for (Continent c: continents) {
+            for (Territory t: c.getTerritories()) {
+                if (t.getControllingPlayerId() == 2) {     //playerId default is -1
+                    if (value == count) {
+                        return t.getId();
+                    }
+
+                    count++;
+                }
+            }
+        }
+        System.err.println("Error 24: Error in method, something went terribly wrong!");
+        return -1;
+
     }
 }
 
