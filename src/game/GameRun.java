@@ -159,7 +159,7 @@ public class GameRun implements Game{
      */     //todo: methode ausmisten
     @Override
     public boolean attack(int fromTerritoryId, int toTerritoryId) {
-        if (isNeighbor(fromTerritoryId, toTerritoryId)) {
+        if (isNeighbor(fromTerritoryId, toTerritoryId) && board.getArmy(fromTerritoryId) > 1) {
             int fromTerritoryControlledByPlayer = board.getControllingPlayerId(fromTerritoryId);
             int toTerritoryControlledByPlayer = board.getControllingPlayerId(toTerritoryId);
 
@@ -183,8 +183,15 @@ public class GameRun implements Game{
                 } else System.err.println("Error 06: You cannot attack your own terriory");
             } else System.err.println("Error 07: The territory Id is not valid");
 
-            board.addArmy(fromTerritoryId, -losses[0]);    // subtract the losses from the attacking territory
+            if (losses[0] > attackStrength) {
+                losses[0] = attackStrength;
+            }
+            if (losses[1] > defenseStrength) {
+                losses[1] = defenseStrength;
+            }
+            board.addArmy(fromTerritoryId, -losses[0]); // subtract the losses from the attacking territory
             board.addArmy(toTerritoryId, -losses[1]);      // subtract the losses from the defending territory
+
 
             if (board.getArmy(toTerritoryId) <= 0) {
                 board.addArmy(fromTerritoryId, -1);
