@@ -110,6 +110,9 @@ public interface Game {
 
     Point getCapital(int territoryId);
 
+    Point getCapital(int territoryId);
+
+
     /*
      * todo: Delete below cause it's just for testing
      */
