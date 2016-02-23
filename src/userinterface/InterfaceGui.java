@@ -23,6 +23,7 @@ public class InterfaceGui {
     private boolean readyToClick;
     private int markedTerritory;
     private int aimedTerritory;
+    private boolean won;
 
 
     public InterfaceGui(Game game) {
@@ -40,6 +41,7 @@ public class InterfaceGui {
         territoryPolygons = new HashMap<Integer, Queue<Polygon>>();
         markedTerritory = -1;
         aimedTerritory = -1;
+        won=false;
 
 
         Map<Integer, List<Point[]>> patches = game.getTerritoryPointArrayMap();
@@ -68,19 +70,19 @@ public class InterfaceGui {
 
                 Map<Integer, int[]> neighborList = game.getNeighborsList();
 
-                for (Map.Entry<Integer, int[]> iterateNeigborList : neighborList.entrySet()) {
+                for (Map.Entry<Integer, int[]> iterateNeighborList : neighborList.entrySet()) {
 
-                    xT1 = game.getCapital(iterateNeigborList.getKey()).x;
-                    yT1 = game.getCapital(iterateNeigborList.getKey()).y;
+                    xT2 = game.getCapital(iterateNeighborList.getKey()).x;
+                    yT2 = game.getCapital(iterateNeighborList.getKey()).y;
 
-                    for (int i = 0; i < iterateNeigborList.getValue().length - 1; i++) {
+                    for (int i = 0; i < iterateNeighborList.getValue().length - 1; i++) {
 
-                        xT2 = game.getCapital(iterateNeigborList.getValue()[i]).x;
-                        yT2 = game.getCapital(iterateNeigborList.getValue()[i]).y;
+                        xT1 = game.getCapital(iterateNeighborList.getValue()[i]).x;
+                        yT1 = game.getCapital(iterateNeighborList.getValue()[i]).y;
 
                         if (xT1 > xT2) {
                             xT1 = xT2;
-                            xT2 = game.getCapital(iterateNeigborList.getKey()).x;
+                            xT2 = game.getCapital(iterateNeighborList.getKey()).x;
                         }
 
 
@@ -89,7 +91,7 @@ public class InterfaceGui {
                             g2d.drawLine(xT2, yT2, mainMap.getWidth(), yT1);
                         } else {
 
-                            g2d.drawLine(game.getCapital(iterateNeigborList.getKey()).x, game.getCapital(iterateNeigborList.getKey()).y, game.getCapital(iterateNeigborList.getValue()[i]).x, game.getCapital(iterateNeigborList.getValue()[i]).y);
+                            g2d.drawLine(game.getCapital(iterateNeighborList.getKey()).x, game.getCapital(iterateNeighborList.getKey()).y, game.getCapital(iterateNeighborList.getValue()[i]).x, game.getCapital(iterateNeighborList.getValue()[i]).y);
 
                         }
                     }
@@ -207,6 +209,15 @@ public class InterfaceGui {
                 endTurnPoly = new Polygon(endTurnX, endTurnY, endTurnX.length);
 
 
+
+                if(won==true){
+                    g2d.setFont(new Font("TimesRoman", Font.PLAIN, 100));
+
+                    g2d.drawString("YOU WON",200, 350);
+
+                }
+
+
             }
 
             @Override
@@ -269,17 +280,22 @@ public class InterfaceGui {
 
                                     if (gamePhase == 0) {
 
-                                        game.claimTerritory(1, q.getKey());
-                                        if (game.allClaimed()) {
-                                            gamePhase = 2;
-                                            game.nextPhase();
+                                        if(game.getControllingPlayerId(q.getKey())<0) {
 
-                                        }
-                                        game.compClaimTerritory();
-                                        if (game.allClaimed()) {
-                                            gamePhase = 2;
-                                            game.nextPhase();
+                                            game.claimTerritory(1, q.getKey());
+                                            if (game.allClaimed()) {
+                                                gamePhase = 1;
+                                                game.nextPhase();
 
+                                            }
+                                            game.compClaimTerritory();
+                                            if (game.allClaimed()) {
+                                                game.calculateReinforcement(2);
+                                                game.compMoveReinforcement();
+                                                gamePhase = 1;
+                                                game.nextPhase();
+
+                                            }
                                         }
 
                                     } else if (gamePhase == 1) {
@@ -300,6 +316,9 @@ public class InterfaceGui {
                                             // do nothing if its a enemy territorium but not a neighbor
                                         } else {
                                             if (game.attack(markedTerritory, q.getKey())) {
+                                                if(game.isGameOver())
+                                                    won=true;
+
                                                 gamePhase = 3;
                                                 aimedTerritory = q.getKey();
                                             }
