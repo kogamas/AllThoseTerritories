@@ -345,16 +345,22 @@ class World implements Board{
         for (Continent c: continents) {
             for (Territory t: c.getTerritories()) {
                 if (t.getControllingPlayerId() == playerId) {     //playerId default is -1
+                    System.out.println("controlled by:" + t.getControllingPlayerId());
                     count++;
                 }
             }
         }
+        System.out.println("The count is:" + count);
         Random rand = new Random();
         int value = rand.nextInt(count);
+        System.out.println("The random is:" + value);
+
+        count = 0;
         for (Continent c: continents) {
             for (Territory t: c.getTerritories()) {
-                if (t.getControllingPlayerId() == 2) {     //playerId default is -1
+                if (t.getControllingPlayerId() == playerId) {     //playerId default is -1
                     if (value == count) {
+                        System.out.println("t.getId()" + t.getId());
                         return t.getId();
                     }
 
