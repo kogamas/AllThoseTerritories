@@ -201,15 +201,13 @@ public class InterfaceGui {
 
                 g2d.setFont(currentFont);
 
-                int[] endAttX = {900, 900, 1025, 1025};
-                int[] endAttY = {600, 635, 600, 635};
-                int[] endTurnX = {1050, 1050, 1175, 1175};
-                int[] endTurnY = {600, 635, 600, 635};
+                int[] endAttX = {900, 1025,1025 , 900};
+                int[] endAttY = {600, 600, 635, 635};
+                int[] endTurnX = {1050, 1175, 1175, 1050};
+                int[] endTurnY = {600, 600, 635, 635};
 
                 endAttPoly = new Polygon(endAttX, endAttY, endAttX.length);
-
                 endTurnPoly = new Polygon(endTurnX, endTurnY, endTurnX.length);
-
 
 
                 if(won==true){
@@ -257,8 +255,6 @@ public class InterfaceGui {
 
                     gamePhase = 1;
 
-                    game.calculateReinforcement(2);
-                    game.compMoveReinforcement();
 
                 } else {
                     for (Map.Entry<Integer, Queue<Polygon>> q : territoryPolygons.entrySet()) {
@@ -286,8 +282,6 @@ public class InterfaceGui {
 
                                             game.claimTerritory(1, q.getKey());
                                             if (game.allClaimed()) {
-                                                game.calculateReinforcement(2);
-                                                game.compMoveReinforcement();
                                                 gamePhase = 1;
                                                 game.nextPhase();
 
@@ -295,8 +289,6 @@ public class InterfaceGui {
                                             else {
                                                 game.compClaimTerritory();
                                                 if (game.allClaimed()) {
-                                                    game.calculateReinforcement(2);
-                                                    game.compMoveReinforcement();
                                                     gamePhase = 1;
                                                     game.nextPhase();
 
@@ -308,6 +300,8 @@ public class InterfaceGui {
 
                                         game.calculateReinforcement(1);
                                         game.moveReinforcement(1, q.getKey(), game.showReinforcement(1));
+                                        game.calculateReinforcement(2);
+                                        game.compMoveReinforcement();
                                         game.nextPhase();
                                         gamePhase = 2;
 
