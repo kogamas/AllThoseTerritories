@@ -1,5 +1,6 @@
 import game.Game;
 import game.GameRun;
+import userinterface.InterfaceGui;
 
 public class AllThoseTerritories  {
 
@@ -157,51 +158,7 @@ public class AllThoseTerritories  {
     }
     //just for testing
     public static void main(String[] args) {
-        System.out.println("---starting game---");
         Game game = new GameRun("Foo", "Bar", args);
-
-        System.out.println("---printing initialized territories---");
-        game.printTerritories();
-        System.out.println("---claiming territories start---");
-        claim(game);
-        System.out.println("---claiming territories end---");
-        System.out.println("---printing claimed territories---");
-        game.printTerritories();
-        System.out.println("---getName---");
-        System.out.println("game.getName(1000):"+game.getName(1000));
-        System.out.println("game.getName(1001):"+game.getName(1001));
-        System.out.println("game.getName(1002):"+game.getName(1002));
-        System.out.println("game.getName(2000):"+game.getName(2000));
-        System.out.println("game.getName(2001):"+game.getName(2001));
-        System.out.println("game.getName(3002):"+game.getName(3002));
-        System.out.println("---calculating reinforcements---");
-        game.calculateReinforcement(1);
-        game.calculateReinforcement(2);
-        System.out.println("---reinforcing---");
-        game.moveReinforcement(1,6004,14);
-        game.moveReinforcement(2,6003,10);
-        game.moveReinforcement(2,5006,8);
-        game.moveReinforcement(2,5003,2);
-        game.moveReinforcement(1,6002,1);
-       // game.moveReinforcement(2,6001,1);
-        System.out.println("---printing reinforced territories---");
-        game.printTerritories();
-        System.out.println("---attacking---");
-        game.attack(6004,6003);
-        game.attack(6004,6003);
-        game.attack(6004,6003);
-        game.attack(6004,6003);
-        game.attack(6004,6003);
-        //game.attack(5002,4001);
-        System.out.println("---printing attacked territories---");
-        game.printTerritories();
-        System.out.println("---moving---");
-        game.moveArmy(5003,5001,1);
-        System.out.println("---printing moved army territories---");
-        game.printTerritories();
-
-       // game.printTerritories2();
-
-
+        InterfaceGui gui = new InterfaceGui(game);
     }
 }
