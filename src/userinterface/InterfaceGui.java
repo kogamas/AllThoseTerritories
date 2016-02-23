@@ -184,21 +184,13 @@ public class InterfaceGui {
 
                 //draw the EndAttack and EndTurn fields
 
-                g2d.setStroke(new
-
-                                BasicStroke(3)
-
-                );
+                g2d.setStroke(new BasicStroke(3));
                 g2d.drawRect(900, 600, 125, 35);
                 g2d.drawRect(1050, 600, 125, 35);
 
                 Font currentFont = g2d.getFont();
 
-                g2d.setFont(new
-
-                                Font("TimesRoman", Font.PLAIN, 20)
-
-                );
+                g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
 
                 g2d.drawString("End Attack", 910, 627);
                 g2d.drawString("End Turn", 1065, 627);
@@ -210,13 +202,9 @@ public class InterfaceGui {
                 int[] endTurnX = {1050, 1050, 1175, 1175};
                 int[] endTurnY = {600, 635, 600, 635};
 
-                endAttPoly = new
+                endAttPoly = new Polygon(endAttX, endAttY, endAttX.length);
 
-                        Polygon(endAttX, endAttY, endAttX.length);
-
-                endTurnPoly = new
-
-                        Polygon(endTurnX, endTurnY, endTurnX.length);
+                endTurnPoly = new Polygon(endTurnX, endTurnY, endTurnX.length);
 
 
             }
@@ -240,12 +228,19 @@ public class InterfaceGui {
                     readyToClick = false;
                     System.out.println("end Attack button was clicked"); // just for testing
 
+                    markedTerritory = -1;
+                    aimedTerritory = -1;
+
                     gamePhase = 4;
                     game.nextPhase();
+
 
                 } else if (endTurnPoly.contains(me.getPoint()) && readyToClick == true) {
                     readyToClick = false;
                     System.out.println("end Turn button was clicked"); // just for testing
+
+                    markedTerritory = -1;
+                    aimedTerritory = -1;
 
                     gamePhase = 1;
                     game.nextRound();
@@ -271,7 +266,8 @@ public class InterfaceGui {
 
                                     if (gamePhase == 0) {
 
-                                        if (!game.claimTerritory(1, q.getKey())) {
+                                        game.claimTerritory(1, q.getKey());
+                                        if (game.allClaimed()) {
                                             gamePhase = 2;
                                             game.nextPhase();
 
@@ -319,7 +315,7 @@ public class InterfaceGui {
 
                                 }
 
-                                if (me.getButton() == MouseEvent.BUTTON3 && readyToClick == true && gamePhase == 2) {
+                                if (me.getButton() == MouseEvent.BUTTON3 && readyToClick == true) {
                                     readyToClick = false;
                                     System.out.println(q.getKey() + " Right clicked"); // TODO: call the right function for a rightclick on a territory
                                     if (gamePhase == 4) {
