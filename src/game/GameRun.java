@@ -226,12 +226,12 @@ public class GameRun implements Game{
             }
             else losses[0]++;
         }
-
-        for (int i = 0; i < attackThrow.length; i++) {
-            if (attackThrow[i] > defenenseThrow[i]) {
-                losses[1]++;
+        else {
+            for (int i = 0; i < attackThrow.length; i++) {
+                if (attackThrow[i] > defenenseThrow[i]) {
+                    losses[1]++;
+                } else losses[0]++;
             }
-            else losses[0]++;
         }
         return losses;
     }
