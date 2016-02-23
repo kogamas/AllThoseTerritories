@@ -256,10 +256,13 @@ public class InterfaceGui {
                             if (pol.contains(me.getPoint())) {
 
                                 boolean isNeighborOF = false;
+                                int[] neighborArr = game.getNeighborsList().get(markedTerritory);
 
-                                for (Integer neighbor : game.getNeighborsList().get(markedTerritory)) {
-                                    if (q.getKey() == neighbor)
-                                        isNeighborOF = true;
+                                if (neighborArr != null) {
+                                    for (int i = 0; i < neighborArr.length; i++) {
+                                        if (q.getKey() == neighborArr[i])
+                                            isNeighborOF = true;
+                                    }
                                 }
 
                                 if (me.getButton() == MouseEvent.BUTTON1 && readyToClick == true) {
