@@ -5,7 +5,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -175,14 +177,22 @@ public class Reader {
                     }
                     worldMap.addContinent(tempContinent);
                 }
-
-
             }
+            if (worldMap.hasNoContinents()) {
+                System.out.println("no continents ------------!!!");
+                Continent tempContinent = new Continent("Pangaea",0);
+                List<Territory> list = new ArrayList<Territory>(territoryMap.values());
+                System.out.println("List size:" + list.size());
+                for (int j = 0; j < list.size(); j++) {
+                    tempContinent.addTerritory(list.get(j));
+                    System.out.println(list.get(j).getName());
+                }
 
+                worldMap.addContinent(tempContinent);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
     }
 
