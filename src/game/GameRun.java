@@ -319,7 +319,7 @@ public class GameRun implements Game{
 
     @Override
     public int compClaimTerritory() {
-        int compTerrId = board.getRandomTerritoryId(2);
+        int compTerrId = board.getRandomTerritoryId(-1);
         claimTerritory(2,compTerrId);
         return compTerrId;
     }
