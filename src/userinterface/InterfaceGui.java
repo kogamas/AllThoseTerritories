@@ -213,7 +213,7 @@ public class InterfaceGui {
 
 
                 if(won==true){
-                    g2d.setFont(new Font("TimesRoman", Font.PLAIN, 250));
+                    g2d.setFont(new Font("TimesRoman", Font.PLAIN, 180));
 
                     g2d.drawString("YOU WON",200, 350);
 
@@ -286,6 +286,8 @@ public class InterfaceGui {
 
                                             game.claimTerritory(1, q.getKey());
                                             if (game.allClaimed()) {
+                                                game.calculateReinforcement(2);
+                                                game.compMoveReinforcement();
                                                 gamePhase = 1;
                                                 game.nextPhase();
 
