@@ -101,13 +101,13 @@ public class AllThoseTerritories  {
 
         //starting Phase 1: Landclaim
         for (int i = 0; i < game.countTerritories(); i++) {
-            int territoryId = -1;   //todo: get from gui
-            int playerId = -1;      //todo: get from gui
-            if (i % 2 == 0) {
-                game.claimTerritory(playerId, territoryId);
+            int territoryId = -1;
+            int playerId = -1;
+            if (i % 2 == 1) {
+                game.claimTerritory(playerId, territoryId);     //todo: set territoryID and playerID by the gui
             }
             else {
-                game.claimTerritory(playerId, territoryId);
+                game.compClaimTerritory();
             }
         }
         //end of  landclaim Phase
@@ -119,39 +119,23 @@ public class AllThoseTerritories  {
             game.calculateReinforcement(2);
 
             while (game.hasReinforcement(1)) {
-                int territoryId = -1;   //todo: get from gui
-                int numberOfArmies = -1; //todo: get from gui
-               game.moveReinforcement(1, territoryId, numberOfArmies);
+                int territoryId = -1;
+                int numberOfArmies = -1;
+               game.moveReinforcement(1, territoryId, 1);  //todo: set territoryID for each click
             }
 
-            while (game.hasReinforcement(2)) {
-                int territoryId = -1;   //todo: get from gui
-                int numberOfArmies = -1; //todo: get from gui
-                game.moveReinforcement(2, territoryId, numberOfArmies);
-            }
+            game.compMoveReinforcement();   //computer distributes his reinforcements when player is finished
 
 
             boolean player1BreakCondition = false;  //todo: get from gui (end turn button!!)
             while (!player1BreakCondition) {
-                int fromTerritory = -1; //todo: get from gui
-                int toTerritory = -1;   //todo: get from gui
+                int fromTerritory = -1;
+                int toTerritory = -1;
 
-                game.attack(fromTerritory, toTerritory);
+                game.attack(fromTerritory, toTerritory); //todo: set territoryIDs for each attack
 
                 if (game.isGameOver()) {
                     System.out.println("Game over! Player 1 won!");   //todo: implement alert in Gui
-                }
-            }
-
-            boolean player2BreakCondition = false;  //todo: get from gui (end turn button!!)
-            while (!player2BreakCondition) {
-                int fromTerritory = -1; //todo: get from gui
-                int toTerritory = -1;   //todo: get from gui
-
-                game.attack(fromTerritory, toTerritory);
-
-                if (game.isGameOver()) {
-                    System.out.println("Game over! Player 2 won!");   //todo: implement alert in Gui
                 }
             }
         }
