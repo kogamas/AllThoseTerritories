@@ -1,349 +1,397 @@
-package game;
+package userinterface;
 
-import Board.Board;
-import Board.Reader;
+import game.Game;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
+import javax.swing.*;
 
-public class GameRun implements Game{
-    private Board board;
-    private int phaseOfGame = -1;
-    private int roundOfPhase = -1;
-    private Map<Integer, Player> playerMap = new HashMap<>();
 
-    public GameRun(String player1, String player2, String[] args){
-        this.playerMap.put(1, new Player(player1));
-        this.playerMap.put(2, new Player(player2));
-        startGame(args);
+public class InterfaceGui {
+
+    private JFrame mainMap;
+    private Polygon poly;
+    private Map<Integer, Queue<Polygon>> territoryPolygons;
+    public Game game;
+    private int gamePhase;
+    private JPanel gamePanel;
+    private Polygon endTurnPoly;
+    private Polygon endAttPoly;
+    private boolean readyToClick;
+    private int markedTerritory;
+    private int aimedTerritory;
+    private boolean won;
+
+
+    public InterfaceGui(Game game) {
+        this.game = game;
+        initComponents();
     }
 
+    private void initComponents() {
 
-    private boolean validPlayerId(int playerId) {
-        return playerMap.containsKey(playerId);
-    }
+        gamePhase = 0;
+        mainMap = new JFrame();
+        mainMap.setResizable(false);
+        mainMap.setBackground(Color.CYAN);
+        mainMap.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        territoryPolygons = new HashMap<Integer, Queue<Polygon>>();
+        markedTerritory = -1;
+        aimedTerritory = -1;
+        won=false;
 
-    private boolean validTerritoryId(int territoryId) {
-        return board.validTerritoryId(territoryId);
-    }
 
-    private Player getPlayer(int playerId) {
-        if (validPlayerId(playerId)) {
-            return playerMap.get(playerId);
-        }
-        else {
-            System.err.println("Invalid PlayerId");
-            return null;
-        }
-    }
-    
-    private boolean isNeighbor(int territoryId, int neighborId) {
-       return board.isNeighborOf(territoryId, neighborId);
-    }
+        Map<Integer, List<Point[]>> patches = game.getTerritoryPointArrayMap();
 
-    public void startGame(String[] array) {
-        this.board = new Reader(array).getWorld();
-        this.phaseOfGame = 0;
-        this.roundOfPhase = 0;
-    }
 
-    @Override
-    public void nextPhase() {
-        this.phaseOfGame++;
-        this.roundOfPhase = 0;
-    }
+        gamePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                setBackground(Color.CYAN);
 
-    @Override
-    public void nextRound() {
-        this.roundOfPhase++;
-    }
+                Graphics2D g2d = (Graphics2D) g.create();
 
-    @Override
-    public void calculateReinforcement(int playerId){
-        if (getPlayer(playerId) != null) {
-            getPlayer(playerId).setReinforcement(board.calculateReinforcement(playerId));
-        }
-        else System.err.println("Error 20: Invalid player Id");
-        System.out.println("Reinforcement player" + playerId + ": " + board.calculateReinforcement(playerId));
-    }
+                g2d.setColor(Color.GRAY);
 
-    /**
-     * This method claims a Territory
-     * @param playerId  The player who claims
-     * @param territoryId   The territory which is claimed
-     * @return  Boolean false when all all territories are claimed
-     */
-    @Override
-    public void claimTerritory(int playerId, int territoryId) {
 
-        int territoryControlledByPlayer = board.getControllingPlayerId(territoryId);
+                Point[] patchPoints = null;
+                int[] x = null;
+                int[] y = null;
 
-        if (validPlayerId(playerId) && validTerritoryId(territoryId)) {
-            if (territoryControlledByPlayer < 0) {
-                board.addArmy(territoryId, 1);
-                board.setControllingPlayer(territoryId, playerId);
-            }
-        }
-        else System.err.println("Error 01: invalid PlayerId or TerritoryId entered");
-    }
 
-    @Override
-    public int showReinforcement(int playerId) {
-        if (getPlayer(playerId) != null) {
-            return getPlayer(playerId).getReinforcement();
-        }
-        else {
-            System.err.println("Error 21: Invalid player Id");
-            return -1;
-        }
-    }
+                super.paintComponent(g);
 
-    /**
-     * This method reinforces a territory
-     * @param playerId  Player who is reinforcing
-     * @param territoryId   Territory which is reinforced
-     * @param numberOfArmies    How many armies are reinforced
-     * @return boolean false when reinforcements of the player are depleted
-     */
-    @Override
-    public boolean moveReinforcement(int playerId, int territoryId, int numberOfArmies) {
 
-        if (getPlayer(playerId) != null) {
-            int territoryControlledByPlayer = board.getControllingPlayerId(territoryId);
-            int reinforcement = getPlayer(playerId).getReinforcement();
-            System.out.println("Reinforcement " + playerId + ": " + reinforcement);
-            if (validPlayerId(playerId) && validTerritoryId(territoryId) && reinforcement > 0) {
-                if (playerId == territoryControlledByPlayer && reinforcement >= numberOfArmies) {
-                    board.addArmy(territoryId, numberOfArmies);
-                    getPlayer(playerId).subReinforcement(numberOfArmies);
-                } else
-                    System.err.println("Error 02: Territory does not belong to you or no more reinforcements available");
-            } else System.err.println("Error 03: invalid PlayerId or TerritoryId entered");
+                int xT1, yT1, xT2, yT2;
+                g2d.setStroke(new BasicStroke(3));
 
-            if (getPlayer(playerId).hasReinforcement()) {
-                return true;
-            }
-            else return false;
-        }
-        else  System.err.println("Error 22: Invalid player Id");
+                Map<Integer, int[]> neighborList = game.getNeighborsList();
 
-        return true; //todo: implement reinforcement move end logic
-    }
+                for (Map.Entry<Integer, int[]> iterateNeighborList : neighborList.entrySet()) {
 
-    @Override
-    public void moveArmy(int fromTerritoryId, int toTerritoryId, int numberOfArmies) {
-        if (isNeighbor(fromTerritoryId,toTerritoryId)) {    //check if the 2 territories are adjacent
+                    xT1 = game.getCapital(iterateNeighborList.getKey()).x;
+                    yT1 = game.getCapital(iterateNeighborList.getKey()).y;
 
-            int fromTerritoryControlledByPlayer = board.getControllingPlayerId(fromTerritoryId);
-            int toTerritoryControlledByPlayer = board.getControllingPlayerId(toTerritoryId);
+                    for (int i = 0; i < iterateNeighborList.getValue().length; i++) {
 
-            if (validTerritoryId(toTerritoryId) && validTerritoryId(fromTerritoryId)) {     //check if both territory ids are correct
-                if (fromTerritoryControlledByPlayer == toTerritoryControlledByPlayer) {     //check if both territories belong to the same player
-                    if (board.getArmy(fromTerritoryId) >= numberOfArmies + 1) {                        //check if enough armies are in territory
-                        board.addArmy(fromTerritoryId, -numberOfArmies);    //subtract by adding negative
-                        board.addArmy(toTerritoryId, numberOfArmies);
+                        xT2 = game.getCapital(iterateNeighborList.getValue()[i]).x;
+                        yT2 = game.getCapital(iterateNeighborList.getValue()[i]).y;
+
+                        if (xT1 > xT2) {
+                            xT1 = xT2;
+                            xT2 = game.getCapital(iterateNeighborList.getKey()).x;
+                        }
+
+                        if (xT1 + mainMap.getWidth() - xT2 < xT2 - xT1) {
+                            g2d.drawLine(xT1, yT1, 0, yT1);
+                            g2d.drawLine(xT2, yT2, mainMap.getWidth(), yT1);
+                            xT1=xT2;
+                            xT2= game.getCapital(iterateNeighborList.getValue()[i]).x;
+                        }
+                         else {
+
+                            g2d.drawLine(game.getCapital(iterateNeighborList.getKey()).x, game.getCapital(iterateNeighborList.getKey()).y, game.getCapital(iterateNeighborList.getValue()[i]).x, game.getCapital(iterateNeighborList.getValue()[i]).y);
+
+                        }
                     }
-                    else System.err.println("Error 11: You dont have enough armies to move");
                 }
-                else System.err.println("Error 10: The territory you want to move your army does not belong to you");
-            } else System.err.println("Error 04: TerritoryId entered");
-        }
-        else System.err.println("Error 05: The two entered Territories are not neighbors");
-    }
 
-    /**
-     * This Method performs an attack from a Terriory to another
-     * @param fromTerritoryId int This is the Id of the attacking territory
-     * @param toTerritoryId int This is the Id of the defending territory
-     */     //todo: methode ausmisten
-    @Override
-    public boolean attack(int fromTerritoryId, int toTerritoryId) {
-        if (isNeighbor(fromTerritoryId, toTerritoryId) && board.getArmy(fromTerritoryId) > 1) {
-            int fromTerritoryControlledByPlayer = board.getControllingPlayerId(fromTerritoryId);
-            int toTerritoryControlledByPlayer = board.getControllingPlayerId(toTerritoryId);
 
-            int fromTerritoryArmyStrength = board.getArmy(fromTerritoryId) - 1;    //one army must stay behind
-            int toTerritoryArmyStrength = board.getArmy(toTerritoryId);
-            int attackStrength;
-            int defenseStrength;
-            int[] losses = {0, 0};
+                for (Map.Entry<Integer, List<Point[]>> iteratePatches : patches.entrySet())
 
-            if (fromTerritoryArmyStrength >= 4) {       //set the fighting armies
-                attackStrength = 3;
-            } else attackStrength = fromTerritoryArmyStrength;
+                {
 
-            if (toTerritoryArmyStrength >= 2) {
-                defenseStrength = 2;
-            } else defenseStrength = toTerritoryArmyStrength;
+                    Queue<Polygon> oneTerritoriesPolygons = new LinkedList<Polygon>();
 
-            if (validTerritoryId(toTerritoryId) && validTerritoryId(fromTerritoryId)) {     //check if both territory ids are correct
-                if (fromTerritoryControlledByPlayer != toTerritoryControlledByPlayer) {      //check if both territories belong to different players
-                    losses = battle(attackStrength, defenseStrength);      //this line calculates the actual battle
-                } else System.err.println("Error 06: You cannot attack your own terriory");
-            } else System.err.println("Error 07: The territory Id is not valid");
 
-            if (losses[0] > attackStrength) {
-                losses[0] = attackStrength;
+                    for (Point[] onePatchPoints : iteratePatches.getValue()) {
+
+
+                        patchPoints = onePatchPoints;
+
+
+                        x = new int[patchPoints.length];
+                        y = new int[patchPoints.length];
+
+
+                        g2d.setStroke(new BasicStroke(4));
+                        g2d.setColor(Color.BLACK);
+
+
+                        for (int j = 0; j < patchPoints.length; j++) {
+                            if (j == patchPoints.length - 1) {
+
+                                g2d.drawLine(patchPoints[j].x, patchPoints[j].y, patchPoints[0].x, patchPoints[0].y);
+
+                            } else {
+                                g2d.drawLine(patchPoints[j].x, patchPoints[j].y, patchPoints[j + 1].x, patchPoints[j + 1].y);
+                            }
+
+
+                            x[j] = patchPoints[j].x;
+                            y[j] = patchPoints[j].y;
+
+
+                        }
+
+
+                        g2d.setStroke(new BasicStroke(1));
+                        poly = new Polygon(x, y, x.length);
+
+                        int territoryKey = iteratePatches.getKey();
+
+
+                        if (game.getControllingPlayerId(territoryKey) < 0) {
+                            g2d.setColor(Color.LIGHT_GRAY);
+                            g2d.fillPolygon(poly);
+                        }
+
+                        if (game.getControllingPlayerId(territoryKey) == 2) {
+                            g2d.setColor(Color.RED);
+                            g2d.fillPolygon(poly);
+                        }
+
+                        if (game.getControllingPlayerId(territoryKey) == 1) {
+                            g2d.setColor(Color.BLUE);
+                            g2d.fillPolygon(poly);
+                        }
+
+                        if (territoryKey == markedTerritory) {
+                            g2d.setColor(Color.yellow);
+                            g2d.fillPolygon(poly);
+                        }
+
+
+                        g2d.setColor(Color.BLACK);
+
+
+                        if (territoryPolygons != null && territoryPolygons.containsKey(iteratePatches.getKey())) {
+                            oneTerritoriesPolygons = territoryPolygons.get(iteratePatches.getKey());
+                            oneTerritoriesPolygons.add(poly);
+
+                            territoryPolygons.put(iteratePatches.getKey(), oneTerritoriesPolygons);
+                        } else {
+                            oneTerritoriesPolygons.add(poly);
+                            territoryPolygons.put(iteratePatches.getKey(), oneTerritoriesPolygons);
+
+                        }
+                    }
+
+                    // mark the capitals of the territories with the amount of armies
+                    g2d.drawString(game.getArmy(iteratePatches.getKey()) + "", game.getCapital(iteratePatches.getKey()).x - 5, game.getCapital(iteratePatches.getKey()).y + 7);
+
+                }
+
+
+                //draw the EndAttack and EndTurn fields
+
+                if(game.allClaimed()) {
+                    g2d.setStroke(new BasicStroke(3));
+                    g2d.drawRect(900, 600, 125, 35);
+                    g2d.drawRect(1050, 600, 125, 35);
+
+                    Font currentFont = g2d.getFont();
+
+                    g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+
+                    g2d.drawString("End Attack", 910, 627);
+                    g2d.drawString("End Turn", 1065, 627);
+
+                    g2d.setFont(currentFont);
+                }
+
+                    int[] endAttX = {900, 1025, 1025, 900};
+                    int[] endAttY = {600, 600, 635, 635};
+                    int[] endTurnX = {1050, 1175, 1175, 1050};
+                    int[] endTurnY = {600, 600, 635, 635};
+
+                    endAttPoly = new Polygon(endAttX, endAttY, endAttX.length);
+                    endTurnPoly = new Polygon(endTurnX, endTurnY, endTurnX.length);
+
+
+                    if (won == true) {
+                        g2d.setFont(new Font("TimesRoman", Font.PLAIN, 180));
+
+                        g2d.drawString("YOU WON", 200, 350);
+
+                    }
+
+
+
             }
-            if (losses[1] > defenseStrength) {
-                losses[1] = defenseStrength;
+
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(1250, 650);
             }
-            board.addArmy(fromTerritoryId, -losses[0]); // subtract the losses from the attacking territory
-            board.addArmy(toTerritoryId, -losses[1]);      // subtract the losses from the defending territory
+        };
 
 
-            if (board.getArmy(toTerritoryId) <= 0) {
-                board.addArmy(fromTerritoryId, -1);
-                board.addArmy(toTerritoryId, 1);
-                board.setControllingPlayer(toTerritoryId, fromTerritoryControlledByPlayer);
-                return true;
+        readyToClick = true;
+
+        MouseAdapter ma = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                super.mouseClicked(me);
+
+
+                if (endAttPoly.contains(me.getPoint()) && readyToClick == true && game.allClaimed()) {
+                    readyToClick = false;
+                    System.out.println("end Attack button was clicked"); // just for testing
+
+                    markedTerritory = -1;
+                    aimedTerritory = -1;
+
+                    gamePhase = 4;
+                    game.nextPhase();
+
+
+                } else if (endTurnPoly.contains(me.getPoint()) && readyToClick == true&& game.allClaimed()) {
+                    readyToClick = false;
+                    System.out.println("end Turn button was clicked"); // just for testing
+
+                    markedTerritory = -1;
+                    aimedTerritory = -1;
+
+                    gamePhase = 1;
+
+
+                } else {
+                    for (Map.Entry<Integer, Queue<Polygon>> q : territoryPolygons.entrySet()) {
+
+                        for (Polygon pol : q.getValue()) {
+                            if (pol.contains(me.getPoint())) {
+
+                                boolean isNeighborOF = false;
+                                int[] neighborArr = game.getNeighborsList().get(markedTerritory);
+
+                                if (neighborArr != null) {
+                                    for (int i = 0; i < neighborArr.length; i++) {
+                                        if (q.getKey() == neighborArr[i])
+                                            isNeighborOF = true;
+                                    }
+                                }
+
+                                if (me.getButton() == MouseEvent.BUTTON1 && readyToClick == true) {
+                                    readyToClick = false;
+                                    System.out.println(q.getKey() + " clicked"); // TODO: call the right function for a leftclick on a territory
+
+                                    if (gamePhase == 0) {
+
+                                        if(game.getControllingPlayerId(q.getKey())<0) {
+
+                                            game.claimTerritory(1, q.getKey());
+                                            if (game.allClaimed()) {
+                                                gamePhase = 1;
+                                                game.nextPhase();
+
+                                            }
+                                            else {
+                                                game.compClaimTerritory();
+                                                if (game.allClaimed()) {
+                                                    gamePhase = 1;
+                                                    game.nextPhase();
+
+                                                }
+                                            }
+                                        }
+
+                                    } else if (gamePhase == 1) {
+
+                                        game.calculateReinforcement(1);
+                                        game.moveReinforcement(1, q.getKey(), game.showReinforcement(1));
+                                        game.calculateReinforcement(2);
+                                        game.compMoveReinforcement();
+                                        game.nextPhase();
+                                        gamePhase = 2;
+
+
+                                    } else if (gamePhase == 2) {
+
+                                        if (markedTerritory < 0) {
+                                            markedTerritory = q.getKey();
+                                        } else if (game.getControllingPlayerId(q.getKey()) == 1) {
+                                            markedTerritory = q.getKey();
+                                        } else if (!isNeighborOF) {
+                                            // do nothing if its a enemy territorium but not a neighbor
+                                        } else {
+                                            if (game.attack(markedTerritory, q.getKey())) {
+                                                if(game.isGameOver())
+                                                    won=true;
+
+                                                gamePhase = 3;
+                                                aimedTerritory = q.getKey();
+                                            }
+                                        }
+
+                                    } else if (gamePhase == 3) {
+
+                                        if (q.getKey() == aimedTerritory) {
+                                            game.moveArmy(markedTerritory, aimedTerritory, 1);
+                                        } else {
+                                            aimedTerritory = -1;
+                                            markedTerritory = -1;
+                                            gamePhase = 2;
+                                        }
+
+                                    } else if (gamePhase == 4) {
+                                        if (markedTerritory < 0 || aimedTerritory < 0) {
+                                            markedTerritory = q.getKey();
+                                        }
+
+                                    }
+
+
+                                }
+
+                                if (me.getButton() == MouseEvent.BUTTON3 && readyToClick == true) {
+                                    readyToClick = false;
+                                    System.out.println(q.getKey() + " Right clicked"); // TODO: call the right function for a rightclick on a territory
+                                    if (gamePhase == 4) {
+                                        if (aimedTerritory < 0 && isNeighborOF) {
+                                            aimedTerritory = q.getKey();
+                                            game.moveArmy(markedTerritory, aimedTerritory, 1);
+                                        }
+
+                                        if (q.getKey() == aimedTerritory) {
+                                            game.moveArmy(markedTerritory, aimedTerritory, 1);
+                                        }
+                                        if (q.getKey() == markedTerritory) {
+                                            game.moveArmy(aimedTerritory, markedTerritory, 1);
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+
+
+                    }
+                }
+
+                gamePanel.repaint();
+                readyToClick = true;
+
             }
+        };
+        gamePanel.addMouseListener(ma);//add listener to panel
+        mainMap.add(gamePanel);
 
-        }
-        else System.err.println("Error 08: The two entered Territories are not neighbors");
+        mainMap.pack();
+        mainMap.setVisible(true);
 
-        return false;
-
-        //todo: Nachziehen wenn alle Verteidiger besiegt implementieren
     }
 
-    /**
-     * This method returns the outcome of an attack in
-     * @param attackers int number of armies attacking
-     * @param defenders ind number of armies defending
-     * @return This returns an int array with 2 entrys, [0]= number of lost attackers, [1]= number of lost defenders
-     */
-    private int[] battle(int attackers, int defenders) {
-        int [] losses = new int[2];
-        int [] attackThrow = rollD6(attackers);
-        int [] defenenseThrow = rollD6(defenders);
 
-
-        if (attackers < 2 || defenders < 2) {
-            if (attackThrow[0] > defenenseThrow[0]) {
-                losses[1]++;
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                //new InterfaceGui();
             }
-            else losses[0]++;
-        }
-        else {
-            for (int i = 0; i < attackThrow.length; i++) {
-                if (attackThrow[i] > defenenseThrow[i]) {
-                    losses[1]++;
-                } else losses[0]++;
-            }
-        }
-        return losses;
+        });
     }
-
-    /**
-     * This method throws one six sided dice
-     * @return This returns the result of the throw
-     */
-    public int rollD6() {
-        Random rand = new Random();
-        return rand.nextInt(5) + 1;
-    }
-    /**
-     * This method rolls n six sided dice
-     * @param n How many dice you roll, if n < 2 the second return array entry will be -1
-     * @return This returns an sorted int[2], [0] = max, [1] = secMax
-     */
-    public int[] rollD6(int n) {
-        int max = -1;
-        int secMax = -1;
-
-        for (int i = 0; i < n; i++) {
-            int d6 = rollD6();
-            if (max <= d6) {
-                secMax = max;
-                max = d6;
-            }
-        }
-        return new int[]{max,secMax};
-    }
-
-    @Override
-    public String[] getPlayerNames() {
-        return new String[0];
-    }
-
-    @Override
-    public void printTerritories() {
-        board.printTerritories();
-    }
-
-
-    @Override
-    public String getName(int id) {
-       return board.getName(id);
-    }
-
-    @Override
-    public int getControllingPlayerId(int territoryId) {
-        return board.getControllingPlayerId(territoryId);
-    }
-
-    @Override
-    public int getArmy(int territoryId) {
-        return board.getArmy(territoryId);
-    }
-
-    @Override
-    public String getPlayerName(int playerId) {
-        return playerMap.get(playerId).getName();
-    }
-
-    @Override
-    public Map<Integer,List<Point[]>> getTerritoryPointArrayMap() {
-      return board.getTerritoryPointArrayMap();
-    }
-
-    @Override
-    public Map<Integer, int[]> getNeighborsList() {
-        return board.getNeighborsList();
-    }
-
-    @Override
-    public boolean isGameOver() {
-        return board.isGameOver();
-    }
-
-    @Override
-    public boolean hasReinforcement(int playerId) {
-        return getPlayer(playerId).hasReinforcement();
-    }
-
-    @Override
-    public int countTerritories() {
-        return board.countTerritories();
-    }
-
-    @Override
-    public Point getCapital(int territoryId) {
-        return board.getCapital(territoryId);
-    }
-
-    @Override
-    public int compClaimTerritory() {
-        int compTerrId = board.getRandomTerritoryId(-1);
-        claimTerritory(2,compTerrId);
-        return compTerrId;
-    }
-
-    @Override
-    public int compMoveReinforcement() {
-        int compTerrId = board.getRandomTerritoryId(2);
-        int allCompArmy = getPlayer(2).getReinforcement();
-        board.addArmy(compTerrId, allCompArmy);
-        getPlayer(2).subReinforcement(allCompArmy);
-        return compTerrId;
-    }
-
-    @Override
-    public boolean allClaimed() {
-        return board.isAllClaimed();    // checks if claim phase is over
-    }
-
-
 }
