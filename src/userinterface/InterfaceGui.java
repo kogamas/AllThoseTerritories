@@ -72,24 +72,26 @@ public class InterfaceGui {
 
                 for (Map.Entry<Integer, int[]> iterateNeighborList : neighborList.entrySet()) {
 
-                    xT2 = game.getCapital(iterateNeighborList.getKey()).x;
-                    yT2 = game.getCapital(iterateNeighborList.getKey()).y;
+                    xT1 = game.getCapital(iterateNeighborList.getKey()).x;
+                    yT1 = game.getCapital(iterateNeighborList.getKey()).y;
 
-                    for (int i = 0; i < iterateNeighborList.getValue().length - 1; i++) {
+                    for (int i = 0; i < iterateNeighborList.getValue().length; i++) {
 
-                        xT1 = game.getCapital(iterateNeighborList.getValue()[i]).x;
-                        yT1 = game.getCapital(iterateNeighborList.getValue()[i]).y;
+                        xT2 = game.getCapital(iterateNeighborList.getValue()[i]).x;
+                        yT2 = game.getCapital(iterateNeighborList.getValue()[i]).y;
 
                         if (xT1 > xT2) {
                             xT1 = xT2;
                             xT2 = game.getCapital(iterateNeighborList.getKey()).x;
                         }
 
-
-                        if (xT1 + mainMap.getWidth() - xT2 <= xT2 - xT1) {
+                        if (xT1 + mainMap.getWidth() - xT2 < xT2 - xT1) {
                             g2d.drawLine(xT1, yT1, 0, yT1);
                             g2d.drawLine(xT2, yT2, mainMap.getWidth(), yT1);
-                        } else {
+                            xT1=xT2;
+                            xT2= game.getCapital(iterateNeighborList.getValue()[i]).x;
+                        }
+                         else {
 
                             g2d.drawLine(game.getCapital(iterateNeighborList.getKey()).x, game.getCapital(iterateNeighborList.getKey()).y, game.getCapital(iterateNeighborList.getValue()[i]).x, game.getCapital(iterateNeighborList.getValue()[i]).y);
 
@@ -211,7 +213,7 @@ public class InterfaceGui {
 
 
                 if(won==true){
-                    g2d.setFont(new Font("TimesRoman", Font.PLAIN, 100));
+                    g2d.setFont(new Font("TimesRoman", Font.PLAIN, 250));
 
                     g2d.drawString("YOU WON",200, 350);
 
