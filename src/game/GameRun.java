@@ -61,10 +61,20 @@ public class GameRun implements Game{
 
     @Override
     public void calculateReinforcement(int playerId){
-        getPlayer(playerId).setReinforcement(board.calculateReinforcement(playerId));
+        if (getPlayer(playerId) != null) {
+            getPlayer(playerId).setReinforcement(board.calculateReinforcement(playerId));
+        }
+        else System.err.println("Error 20: Invalid player Id");
         System.out.println("Reinforcement player" + playerId + ": " + board.calculateReinforcement(playerId));
     }
 
+    /**
+     * This method claims a Territory
+     * @param playerId  The player who claims
+     * @param territoryId   The territory which is claimed
+     * @return  Boolean false when all all territories are claimed
+     */
+    @Override
     public boolean claimTerritory(int playerId, int territoryId) {
 
         int territoryControlledByPlayer = board.getControllingPlayerId(territoryId);
@@ -77,30 +87,50 @@ public class GameRun implements Game{
         }
         else System.err.println("Error 01: invalid PlayerId or TerritoryId entered");
 
-        return true;    //todo: implement check if claim phase is over
+        return !board.isAllClaimed();    // checks if claim phase is over
     }
 
     @Override
     public int showReinforcement(int playerId) {
-        return 999;   //todo: implement this
+        if (getPlayer(playerId) != null) {
+            return getPlayer(playerId).getReinforcement();
+        }
+        else {
+            System.err.println("Error 21: Invalid player Id");
+            return -1;
+        }
     }
 
+    /**
+     * This method reinforces a territory
+     * @param playerId  Player who is reinforcing
+     * @param territoryId   Territory which is reinforced
+     * @param numberOfArmies    How many armies are reinforced
+     * @return boolean false when reinforcements of the player are depleted
+     */
     @Override
     public boolean moveReinforcement(int playerId, int territoryId, int numberOfArmies) {
 
-        int territoryControlledByPlayer = board.getControllingPlayerId(territoryId);
-        int reinforcement = getPlayer(playerId).getReinforcement();
-        System.out.println("Reinforcement "+playerId+": " +reinforcement);
-        if (validPlayerId(playerId) && validTerritoryId(territoryId) && reinforcement > 0) {
-            if (playerId == territoryControlledByPlayer && reinforcement >= numberOfArmies) {
-                board.addArmy(territoryId, numberOfArmies);
-                getPlayer(playerId).subReinforcement(numberOfArmies);
-            }
-            else System.err.println("Error 02: Territory does not belong to you or no more reinforcements available");
-        }
-        else System.err.println("Error 03: invalid PlayerId or TerritoryId entered");
+        if (getPlayer(playerId) != null) {
+            int territoryControlledByPlayer = board.getControllingPlayerId(territoryId);
+            int reinforcement = getPlayer(playerId).getReinforcement();
+            System.out.println("Reinforcement " + playerId + ": " + reinforcement);
+            if (validPlayerId(playerId) && validTerritoryId(territoryId) && reinforcement > 0) {
+                if (playerId == territoryControlledByPlayer && reinforcement >= numberOfArmies) {
+                    board.addArmy(territoryId, numberOfArmies);
+                    getPlayer(playerId).subReinforcement(numberOfArmies);
+                } else
+                    System.err.println("Error 02: Territory does not belong to you or no more reinforcements available");
+            } else System.err.println("Error 03: invalid PlayerId or TerritoryId entered");
 
-        return true; //todo: implement reinfocement move end logic
+            if (getPlayer(playerId).hasReinforcement()) {
+                return true;
+            }
+            else return false;
+        }
+        else  System.err.println("Error 22: Invalid player Id");
+
+        return true; //todo: implement reinforcement move end logic
     }
 
     @Override
@@ -130,7 +160,7 @@ public class GameRun implements Game{
      * @param toTerritoryId int This is the Id of the defending territory
      */     //todo: methode ausmisten
     @Override
-    public void attack(int fromTerritoryId, int toTerritoryId) {
+    public boolean attack(int fromTerritoryId, int toTerritoryId) {
         if (isNeighbor(fromTerritoryId, toTerritoryId)) {
             int fromTerritoryControlledByPlayer = board.getControllingPlayerId(fromTerritoryId);
             int toTerritoryControlledByPlayer = board.getControllingPlayerId(toTerritoryId);
@@ -158,8 +188,19 @@ public class GameRun implements Game{
             board.addArmy(fromTerritoryId, -losses[0]);    // subtract the losses from the attacking territory
             board.addArmy(toTerritoryId, -losses[1]);      // subtract the losses from the defending territory
 
+            if (board.getArmy(toTerritoryId) <= 0) {
+                board.addArmy(fromTerritoryId, -1);
+                board.addArmy(toTerritoryId, 1);
+                board.setControllingPlayer(toTerritoryId, fromTerritoryControlledByPlayer);
+                return true;
+            }
+
         }
         else System.err.println("Error 08: The two entered Territories are not neighbors");
+
+        return false;
+
+        //todo: Nachziehen wenn alle Verteidiger besiegt implementieren
     }
 
     /**
@@ -271,5 +312,10 @@ public class GameRun implements Game{
     @Override
     public int countTerritories() {
         return board.countTerritories();
+    }
+
+    @Override
+    public Point getCapital(int territoryId) {
+        return board.getCapital(territoryId);
     }
 }

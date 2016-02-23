@@ -21,4 +21,6 @@ public interface Board {
     boolean isNeighborOf(int territoryId, int neighborId);
     Map<Integer, int[]> getNeighborsList();
     boolean isGameOver();
+    Point getCapital(int territoryId);
+    boolean isAllClaimed();
 }

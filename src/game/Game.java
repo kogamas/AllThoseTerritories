@@ -65,8 +65,9 @@ public interface Game {
      * This method attacks a territory from another if they are controlled by two different players
      * @param fromTerritoryId   attacking territory
      * @param toTerritoryId     defending territory
+     * @return boolean true if 0 defenders left
      */
-    void attack(int fromTerritoryId, int toTerritoryId);  //return must tell won, lost and how many casualties
+    boolean attack(int fromTerritoryId, int toTerritoryId);  //return must tell won, lost and how many casualties
 
 
     /**
@@ -107,12 +108,13 @@ public interface Game {
     int countTerritories();
     //int[] getPlayerColor(int playerId);
 
+    Point getCapital(int territoryId);
 
     Point getCapital(int territoryId);
 
 
     /*
-     * todo: Delete this cause it's just for testing
+     * todo: Delete below cause it's just for testing
      */
     void printTerritories();
 

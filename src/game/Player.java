@@ -1,7 +1,7 @@
 package game;
 
 public class Player {
-    private String name;
+    private String name = "";
     private int reinforcement;
 
     public Player(String name){
