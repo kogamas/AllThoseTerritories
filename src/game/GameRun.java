@@ -160,7 +160,7 @@ public class GameRun implements Game{
      * @param toTerritoryId int This is the Id of the defending territory
      */     //todo: methode ausmisten
     @Override
-    public void attack(int fromTerritoryId, int toTerritoryId) {
+    public boolean attack(int fromTerritoryId, int toTerritoryId) {
         if (isNeighbor(fromTerritoryId, toTerritoryId)) {
             int fromTerritoryControlledByPlayer = board.getControllingPlayerId(fromTerritoryId);
             int toTerritoryControlledByPlayer = board.getControllingPlayerId(toTerritoryId);
@@ -188,8 +188,19 @@ public class GameRun implements Game{
             board.addArmy(fromTerritoryId, -losses[0]);    // subtract the losses from the attacking territory
             board.addArmy(toTerritoryId, -losses[1]);      // subtract the losses from the defending territory
 
+            if (board.getArmy(toTerritoryId) <= 0) {
+                board.addArmy(fromTerritoryId, -1);
+                board.addArmy(toTerritoryId, 1);
+                board.setControllingPlayer(toTerritoryId, fromTerritoryControlledByPlayer);
+                return true;
+            }
+
         }
         else System.err.println("Error 08: The two entered Territories are not neighbors");
+
+        return false;
+
+        //todo: Nachziehen wenn alle Verteidiger besiegt implementieren
     }
 
     /**
