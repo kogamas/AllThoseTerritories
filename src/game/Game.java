@@ -24,8 +24,9 @@ public interface Game {
      * @param playerId  The player who claims
      * @param territoryId   The territory which is claimed
      */
-    boolean claimTerritory(int playerId, int territoryId);
-
+    void claimTerritory(int playerId, int territoryId);
+    int compClaimTerritory();
+    boolean allClaimed();
     void nextPhase();       //can only be executed once
 
     //Phase 1
@@ -48,6 +49,7 @@ public interface Game {
      * @param numberOfArmies    How many armies are reinforced
      */
     boolean moveReinforcement(int playerId, int territoryId, int numberOfArmies);     //sets an army on a territory
+    int compMoveReinforcement();
 
     boolean hasReinforcement(int playerId);
 
