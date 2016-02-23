@@ -108,6 +108,9 @@ public interface Game {
     //int[] getPlayerColor(int playerId);
 
 
+    Point getCapital(int territoryId);
+
+
     /*
      * todo: Delete this cause it's just for testing
      */

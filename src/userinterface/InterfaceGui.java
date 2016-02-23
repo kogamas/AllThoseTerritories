@@ -1,9 +1,5 @@
 package userinterface;
 
-import board.Patch;
-import board.Territory;
-import board.World;
-import board.Reader;
 import game.Game;
 
 import java.awt.*;
@@ -11,6 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.*;
+import java.util.List;
 import javax.swing.*;
 
 
@@ -24,9 +21,12 @@ public class InterfaceGui {
     private JPanel gamePanel;
     private Polygon endTurnPoly;
     private Polygon endAttPoly;
+    private boolean readyToClick;
+    private int markedTerritory;
 
 
-    public InterfaceGui() {
+    public InterfaceGui(Game game) {
+        this.game=game;
         initComponents();
     }
 
@@ -38,14 +38,10 @@ public class InterfaceGui {
         mainMap.setBackground(Color.CYAN);
         mainMap.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         territoryPolygons = new HashMap<Integer, Queue<Polygon>>();
+        markedTerritory=-1;
 
-        File file = new File("C:\\Users\\Felix\\Dropbox\\Uni\\newuni\\AllThoseTerritories\\angabe\\world.map");
-        Reader readWorld = new Reader(file);
 
-        World newWorld = readWorld.getWorld();
-
-        Map<Integer, Patch[]> patches = newWorld.getTerritoryPatchesMap();
-        territoryMap = newWorld.getTerritoryMap();
+        Map<Integer, List<Point[]>> patches = game.getTerritoryPointArrayMap();
 
 
         gamePanel = new JPanel() {
@@ -69,45 +65,47 @@ public class InterfaceGui {
                 int xT1, yT1, xT2, yT2;
                 g2d.setStroke(new BasicStroke(3));
 
-                for (Map.Entry<Integer, Territory> iterateTerritoryMap : territoryMap.entrySet()) {
+                Map<Integer, int[]> neighborList = game.getNeighborsList();
 
-                    for (Integer oneTerr : territoryMap.keySet()) {
+                for (Map.Entry<Integer, int[]> iterateNeigborList : neighborList.entrySet()) {
 
-                        if (newWorld.isNeighborOf(iterateTerritoryMap.getKey(), oneTerr)) {
-                            xT1 = iterateTerritoryMap.getValue().getCapital().x;
-                            yT1 = iterateTerritoryMap.getValue().getCapital().y;
-                            xT2 = territoryMap.get(oneTerr).getCapital().x;
-                            yT2 = territoryMap.get(oneTerr).getCapital().y;
+                    xT1 = game.getCapital(iterateNeigborList.getKey()).x;
+                    yT1 = game.getCapital(iterateNeigborList.getKey()).y;
 
-                            if (xT1 > xT2) {
-                                xT1 = xT2;
-                                xT2 = iterateTerritoryMap.getValue().getCapital().x;
-                            }
+                    for (int i = 0; i < iterateNeigborList.getValue().length - 1; i++) {
 
+                        xT2 = game.getCapital(iterateNeigborList.getValue()[i]).x;
+                        yT2 = game.getCapital(iterateNeigborList.getValue()[i]).y;
 
-                            if (xT1 + mainMap.getWidth() - xT2 <= xT2 - xT1) {
-                                g2d.drawLine(xT1, yT1, 0, yT1);
-                                g2d.drawLine(xT2, yT2, mainMap.getWidth(), yT1);
-                            } else {
-
-                                g2d.drawLine(iterateTerritoryMap.getValue().getCapital().x, iterateTerritoryMap.getValue().getCapital().y, territoryMap.get(oneTerr).getCapital().x, territoryMap.get(oneTerr).getCapital().y);
-
-                            }
+                        if (xT1 > xT2) {
+                            xT1 = xT2;
+                            xT2 = game.getCapital(iterateNeigborList.getKey()).x;
                         }
 
-                    }
 
+                        if (xT1 + mainMap.getWidth() - xT2 <= xT2 - xT1) {
+                            g2d.drawLine(xT1, yT1, 0, yT1);
+                            g2d.drawLine(xT2, yT2, mainMap.getWidth(), yT1);
+                        } else {
+
+                            g2d.drawLine(game.getCapital(iterateNeigborList.getKey()).x, game.getCapital(iterateNeigborList.getKey()).y, game.getCapital(iterateNeigborList.getValue()[i]).x,game.getCapital(iterateNeigborList.getValue()[i]).y);
+
+                        }
+                    }
                 }
 
-                for (Map.Entry<Integer, Patch[]> iteratePatches : patches.entrySet()) {
+
+                for (Map.Entry<Integer, List<Point[]>> iteratePatches : patches.entrySet())
+
+                {
 
                     Queue<Polygon> oneTerritoriesPolygons = new LinkedList<Polygon>();
 
 
-                    for (int i = 0; i < iteratePatches.getValue().length; i++) {
+                    for (Point[] onePatchPoints : iteratePatches.getValue()) {
 
 
-                        patchPoints = iteratePatches.getValue()[i].getBorders();
+                        patchPoints = onePatchPoints;
 
 
                         x = new int[patchPoints.length];
@@ -138,24 +136,23 @@ public class InterfaceGui {
                         g2d.setStroke(new BasicStroke(1));
                         poly = new Polygon(x, y, x.length);
 
-                        int territoryKey=iteratePatches.getKey();
-                        Territory currenTerritory= territoryMap.get(territoryKey);
+                        int territoryKey = iteratePatches.getKey();
 
-                        if(currenTerritory.getArmy()==0){
+
+                        if (game.getControllingPlayerId(territoryKey) < 0) {
                             g2d.setColor(Color.LIGHT_GRAY);
                             g2d.fillPolygon(poly);
                         }
 
-                        if(currenTerritory.getControlledByPlayer()==0){
+                        if (game.getControllingPlayerId(territoryKey) == 0) {
                             g2d.setColor(Color.RED);
                             g2d.fillPolygon(poly);
                         }
 
-                        if(currenTerritory.getControlledByPlayer()==1){
+                        if (game.getControllingPlayerId(territoryKey) > 0) {
                             g2d.setColor(Color.BLUE);
                             g2d.fillPolygon(poly);
                         }
-
 
 
                         g2d.setColor(Color.BLACK);
@@ -172,26 +169,33 @@ public class InterfaceGui {
 
                         }
                     }
+
+
+                    g2d.drawString(game.getArmy(iteratePatches.getKey()) + "", game.getCapital(iteratePatches.getKey()).x - 5, game.getCapital(iteratePatches.getKey()).y + 7);
+
                 }
 
                 // mark the capitals of the territories with the amount of armies
-                for (Map.Entry<Integer, Territory> iterateTerritoryMap : territoryMap.entrySet()) {
 
-
-
-                    g2d.drawString(iterateTerritoryMap.getValue().getArmy()+"", iterateTerritoryMap.getValue().getCapital().x - 5, iterateTerritoryMap.getValue().getCapital().y + 7);
-                }
 
 
                 //draw the EndAttack and EndTurn fields
 
-                g2d.setStroke(new BasicStroke(3));
+                g2d.setStroke(new
+
+                                BasicStroke(3)
+
+                );
                 g2d.drawRect(900, 600, 125, 35);
                 g2d.drawRect(1050, 600, 125, 35);
 
                 Font currentFont = g2d.getFont();
 
-                g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+                g2d.setFont(new
+
+                                Font("TimesRoman", Font.PLAIN, 20)
+
+                );
 
                 g2d.drawString("End Attack", 910, 627);
                 g2d.drawString("End Turn", 1065, 627);
@@ -203,8 +207,13 @@ public class InterfaceGui {
                 int[] endTurnX = {1050, 1050, 1175, 1175};
                 int[] endTurnY = {600, 635, 600, 635};
 
-                endAttPoly = new Polygon(endAttX, endAttY, endAttX.length);
-                endTurnPoly = new Polygon(endTurnX, endTurnY, endTurnX.length);
+                endAttPoly = new
+
+                        Polygon(endAttX, endAttY, endAttX.length);
+
+                endTurnPoly = new
+
+                        Polygon(endTurnX, endTurnY, endTurnX.length);
 
 
             }
@@ -215,42 +224,82 @@ public class InterfaceGui {
             }
         };
 
+
+        readyToClick = true;
+
         MouseAdapter ma = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent me) {
                 super.mouseClicked(me);
 
-                if (endAttPoly.contains(me.getPoint())) {
-                    System.out.println("end Attack button was clicked"); // TODO: call the right function to end The attack
-                }
 
-                if (endTurnPoly.contains(me.getPoint())) {
-                    System.out.println("end Turn button was clicked"); // TODO: call the right function to end the Turn
-                }
+                if (endAttPoly.contains(me.getPoint()) && readyToClick == true && gamePhase == 1) {
+                    readyToClick = false;
+                    System.out.println("end Attack button was clicked"); // just for testing
 
-                for (Map.Entry<Integer, Queue<Polygon>> q : territoryPolygons.entrySet()) {
+                    gamePhase = 2;
+                    game.nextPhase();
 
-                    for (Polygon pol : q.getValue()) {
-                        if (pol.contains(me.getPoint())) {
-                            if (me.getButton() == MouseEvent.BUTTON1) {
+                } else if (endTurnPoly.contains(me.getPoint()) && readyToClick == true && gamePhase == 2) {
+                    readyToClick = false;
+                    System.out.println("end Turn button was clicked"); // just for testing
 
-                                System.out.println(q.getKey() + " clicked"); // TODO: call the right function for a leftclick on a territory
+                    gamePhase = 1;
+                    game.nextRound();
+                } else {
+                    for (Map.Entry<Integer, Queue<Polygon>> q : territoryPolygons.entrySet()) {
+
+                        for (Polygon pol : q.getValue()) {
+                            if (pol.contains(me.getPoint())) {
+                                if (me.getButton() == MouseEvent.BUTTON1 && readyToClick == true) {
+                                    readyToClick = false;
+                                    System.out.println(q.getKey() + " clicked"); // TODO: call the right function for a leftclick on a territory
+
+                                    if (gamePhase == 0) {
+
+                                        if (game.claimTerritory(1, q.getKey())) {
+                                            gamePhase = 2;
+                                            game.nextPhase();
+                                            gamePanel.repaint();
+                                        }
+
+                                    }
+
+                                   else if (gamePhase == 1) {
+                                        //TODO: add a reinforcement to a field
+
+                                    }
+
+                                    else if(gamePhase==2){
+
+                                        if(markedTerritory<0){
+                                            markedTerritory=q.getKey();
+                                        }
+                                       // else if(isNeighborOf) muss implementiert werden
+
+                                    }
+
+                                    else if(gamePhase==3){
+
+                                    }
+
+
+                                }
+
+                                if (me.getButton() == MouseEvent.BUTTON3 && readyToClick == true && gamePhase == 2) {
+                                    readyToClick = false;
+                                    System.out.println(q.getKey() + " Right clicked"); // TODO: call the right function for a rightclick on a territory
+
+                                }
+
                             }
-
-                            if (me.getButton() == MouseEvent.BUTTON3) {
-                                System.out.println(q.getKey() + " Right clicked"); // TODO: call the right function for a rightclick on a territory
-                                Territory testTerri=territoryMap.get(q.getKey());
-                                testTerri.setArmy(5);
-                                testTerri.setControlledByPlayer(1);
-
-                                occupyTerritory(q.getKey(), 1);
-                            }
-
                         }
+
+
                     }
-
-
                 }
+
+                readyToClick = true;
 
             }
         };
@@ -262,18 +311,12 @@ public class InterfaceGui {
 
     }
 
-    public void occupyTerritory(int territory, int player) {
-
-        gamePanel.repaint();
-
-    }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new InterfaceGui();
+                //new InterfaceGui();
             }
         });
     }
