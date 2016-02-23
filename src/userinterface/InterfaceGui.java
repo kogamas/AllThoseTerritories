@@ -5,7 +5,6 @@ import game.Game;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
@@ -16,17 +15,18 @@ public class InterfaceGui {
     private JFrame mainMap;
     private Polygon poly;
     private Map<Integer, Queue<Polygon>> territoryPolygons;
-    private Game game;
+    public Game game;
     private int gamePhase;
     private JPanel gamePanel;
     private Polygon endTurnPoly;
     private Polygon endAttPoly;
     private boolean readyToClick;
     private int markedTerritory;
+    private int aimedTerritory;
 
 
     public InterfaceGui(Game game) {
-        this.game=game;
+        this.game = game;
         initComponents();
     }
 
@@ -38,7 +38,8 @@ public class InterfaceGui {
         mainMap.setBackground(Color.CYAN);
         mainMap.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         territoryPolygons = new HashMap<Integer, Queue<Polygon>>();
-        markedTerritory=-1;
+        markedTerritory = -1;
+        aimedTerritory = -1;
 
 
         Map<Integer, List<Point[]>> patches = game.getTerritoryPointArrayMap();
@@ -88,7 +89,7 @@ public class InterfaceGui {
                             g2d.drawLine(xT2, yT2, mainMap.getWidth(), yT1);
                         } else {
 
-                            g2d.drawLine(game.getCapital(iterateNeigborList.getKey()).x, game.getCapital(iterateNeigborList.getKey()).y, game.getCapital(iterateNeigborList.getValue()[i]).x,game.getCapital(iterateNeigborList.getValue()[i]).y);
+                            g2d.drawLine(game.getCapital(iterateNeigborList.getKey()).x, game.getCapital(iterateNeigborList.getKey()).y, game.getCapital(iterateNeigborList.getValue()[i]).x, game.getCapital(iterateNeigborList.getValue()[i]).y);
 
                         }
                     }
@@ -144,13 +145,18 @@ public class InterfaceGui {
                             g2d.fillPolygon(poly);
                         }
 
-                        if (game.getControllingPlayerId(territoryKey) == 0) {
+                        if (game.getControllingPlayerId(territoryKey) == 2) {
                             g2d.setColor(Color.RED);
                             g2d.fillPolygon(poly);
                         }
 
-                        if (game.getControllingPlayerId(territoryKey) > 0) {
+                        if (game.getControllingPlayerId(territoryKey) == 1) {
                             g2d.setColor(Color.BLUE);
+                            g2d.fillPolygon(poly);
+                        }
+
+                        if (territoryKey == markedTerritory) {
+                            g2d.setColor(Color.yellow);
                             g2d.fillPolygon(poly);
                         }
 
@@ -170,13 +176,10 @@ public class InterfaceGui {
                         }
                     }
 
-
+                    // mark the capitals of the territories with the amount of armies
                     g2d.drawString(game.getArmy(iteratePatches.getKey()) + "", game.getCapital(iteratePatches.getKey()).x - 5, game.getCapital(iteratePatches.getKey()).y + 7);
 
                 }
-
-                // mark the capitals of the territories with the amount of armies
-
 
 
                 //draw the EndAttack and EndTurn fields
@@ -233,14 +236,14 @@ public class InterfaceGui {
                 super.mouseClicked(me);
 
 
-                if (endAttPoly.contains(me.getPoint()) && readyToClick == true && gamePhase == 1) {
+                if (endAttPoly.contains(me.getPoint()) && readyToClick == true ) {
                     readyToClick = false;
                     System.out.println("end Attack button was clicked"); // just for testing
 
-                    gamePhase = 2;
+                    gamePhase = 4;
                     game.nextPhase();
 
-                } else if (endTurnPoly.contains(me.getPoint()) && readyToClick == true && gamePhase == 2) {
+                } else if (endTurnPoly.contains(me.getPoint()) && readyToClick == true) {
                     readyToClick = false;
                     System.out.println("end Turn button was clicked"); // just for testing
 
@@ -251,35 +254,69 @@ public class InterfaceGui {
 
                         for (Polygon pol : q.getValue()) {
                             if (pol.contains(me.getPoint())) {
+
+                                boolean isNeighborOF = false;
+
+                                for(Integer neighbor:game.getNeighborsList().get(markedTerritory)){
+                                    if(q.getKey()==neighbor)
+                                        isNeighborOF=true;
+                                }
+
                                 if (me.getButton() == MouseEvent.BUTTON1 && readyToClick == true) {
                                     readyToClick = false;
                                     System.out.println(q.getKey() + " clicked"); // TODO: call the right function for a leftclick on a territory
 
                                     if (gamePhase == 0) {
 
-                                        if (game.claimTerritory(1, q.getKey())) {
+                                        if (!game.claimTerritory(1, q.getKey())) {
                                             gamePhase = 2;
                                             game.nextPhase();
-                                            gamePanel.repaint();
+
+                                        }
+
+                                    } else if (gamePhase == 1) {
+
+                                        game.moveReinforcement(1, q.getKey(), game.showReinforcement(1));
+                                        game.nextPhase();
+                                        gamePhase = 2;
+
+
+                                    } else if (gamePhase == 2) {
+
+                                        if (markedTerritory < 0) {
+                                            markedTerritory = q.getKey();
+                                        } else if (game.getControllingPlayerId(q.getKey()) == 1) {
+                                            markedTerritory = q.getKey();
+                                        }
+
+                                        else if (!isNeighborOF){
+                                            // do nothing if its a enemy territorium but not a neighbor
+                                        }
+
+                                        else{
+                                            if(game.attack(markedTerritory, q.getKey())) {
+                                                gamePhase = 3;
+                                                aimedTerritory = q.getKey();
+                                            }
+                                        }
+
+                                    } else if (gamePhase == 3) {
+
+                                        if(q.getKey()==aimedTerritory){
+                                            game.moveArmy(markedTerritory,aimedTerritory,1);
+                                        }
+                                        else{
+                                            aimedTerritory=-1;
+                                            markedTerritory=-1;
+                                            gamePhase=2;
                                         }
 
                                     }
 
-                                   else if (gamePhase == 1) {
-                                        //TODO: add a reinforcement to a field
-
-                                    }
-
-                                    else if(gamePhase==2){
-
-                                        if(markedTerritory<0){
+                                    else if(gamePhase==4){
+                                        if(markedTerritory<0 || aimedTerritory<0){
                                             markedTerritory=q.getKey();
                                         }
-                                       // else if(isNeighborOf) muss implementiert werden
-
-                                    }
-
-                                    else if(gamePhase==3){
 
                                     }
 
@@ -289,7 +326,19 @@ public class InterfaceGui {
                                 if (me.getButton() == MouseEvent.BUTTON3 && readyToClick == true && gamePhase == 2) {
                                     readyToClick = false;
                                     System.out.println(q.getKey() + " Right clicked"); // TODO: call the right function for a rightclick on a territory
+                                    if(gamePhase==4){
+                                        if(aimedTerritory<0 && isNeighborOF) {
+                                            aimedTerritory =q.getKey();
+                                            game.moveArmy(markedTerritory,aimedTerritory,1);
+                                        }
 
+                                        if(q.getKey()==aimedTerritory){
+                                            game.moveArmy(markedTerritory,aimedTerritory,1);
+                                        }
+                                        if(q.getKey()==markedTerritory){
+                                            game.moveArmy(aimedTerritory,markedTerritory,1);
+                                        }
+                                    }
                                 }
 
                             }
@@ -299,6 +348,7 @@ public class InterfaceGui {
                     }
                 }
 
+                gamePanel.repaint();
                 readyToClick = true;
 
             }
