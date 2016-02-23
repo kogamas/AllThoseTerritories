@@ -44,6 +44,8 @@ class World implements Board{
             this.continents.add(c);
         }
 
+    boolean hasNoContinents() {return this.continents.isEmpty();}
+
     /**
      * @return returns a Map with the TerritoryId as Key and an Array of Patches as Value
      **/
