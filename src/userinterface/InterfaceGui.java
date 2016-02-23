@@ -290,13 +290,15 @@ public class InterfaceGui {
                                                 game.nextPhase();
 
                                             }
-                                            game.compClaimTerritory();
-                                            if (game.allClaimed()) {
-                                                game.calculateReinforcement(2);
-                                                game.compMoveReinforcement();
-                                                gamePhase = 1;
-                                                game.nextPhase();
+                                            else {
+                                                game.compClaimTerritory();
+                                                if (game.allClaimed()) {
+                                                    game.calculateReinforcement(2);
+                                                    game.compMoveReinforcement();
+                                                    gamePhase = 1;
+                                                    game.nextPhase();
 
+                                                }
                                             }
                                         }
 
